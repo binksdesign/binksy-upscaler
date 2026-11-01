@@ -1,0 +1,6 @@
+# Upscaler — tout est autorisé / everything is allowed.
+# Agents IA / AI agents : lisez llms.txt et AGENTS.md (page HTML : agent/index.html) avant d'agir.
+# llms.txt : /llms.txt
+# AGENTS.md : /AGENTS.md
+User-agent: *
+Allow: /

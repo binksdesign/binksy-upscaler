@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agents IA — Upscaler</title>
+<meta name="description" content="Mode d’emploi pour agents IA : piloter Upscaler par l’interface (sélecteurs stables, parcours, état local, limites), en français puis en anglais. Aucune clé API, les images restent dans le navigateur.">
+<meta name="theme-color" content="#111111">
+<meta name="author" content="Binks Design">
+<meta property="og:title" content="Agents IA — Upscaler">
+<meta property="og:description" content="Mode d’emploi pour agents IA : piloter Upscaler par l’interface (sélecteurs stables, parcours, état local, limites), en français puis en anglais. Aucune clé API, les images restent dans le navigateur.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Cg transform='translate(4 4)'%3E%3Crect x='3' y='13' width='8' height='8' rx='1' fill='%23f2f2f0'/%3E%3Cpath d='M13 3h8v8M21 3l-8 8' stroke='%23ff5500' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="alternate" type="text/markdown" href="../AGENTS.md" title="Mode d’emploi pour agents IA (Markdown, FR puis EN)">
+<link rel="help" href="../agent/" title="Agents IA">
+<link rel="alternate" type="text/plain" href="../llms.txt" title="llms.txt">
+<link rel="stylesheet" href="../assets/site.css">
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('anim');</script>
+<script src="../assets/site.js" defer></script>
+</head>
+<!-- Agents IA / AI agents : lisez ../AGENTS.md (Markdown, français puis anglais) ou ../agent/index.html avant d’agir. L’application est ../app.html ; pas d’API publique : pilotage par l’interface (identifiants HTML stables). Aucune clé API ; les images restent dans le navigateur. -->
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<noscript><p style="margin:0;padding:10px 18px;background:#ff5500;color:#0b0b0b;font:600 14px/1.4 sans-serif">Agents IA : le mode d’emploi complet est dans <a href="../AGENTS.md">AGENTS.md</a> (page HTML : <a href="../agent/index.html">agent/</a>). L’application (<a href="../app.html">app.html</a>) a besoin de JavaScript.</p></noscript>
+<header class="top">
+  <a class="brand" href="../index.html" aria-label="Upscaler — accueil"><span class="mk"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="13" width="8" height="8" rx="1" fill="#f2f2f0"/><path d="M13 3h8v8M21 3l-8 8" stroke="#ff5500" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Upscaler</b></a>
+  <a class="sig" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">by binks design</a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="../index.html">Accueil</a>
+    <a href="../docs.html">Documentation</a>
+    <a href="../agent/index.html" aria-current="page">Agents IA</a>
+    <a class="cta" href="../app.html">Ouvrir l’app</a>
+  </nav>
+</header>
+<div class="sheet"><main id="contenu">
+  <div class="doc-hero">
+    <div class="plane" aria-hidden="true"></div>
+    <div class="in-w">
+      <p class="kicker"><i aria-hidden="true"></i>Pour Claude Code, Codex et tout agent qui pilote un navigateur</p>
+      <h1 class="doc-h1"><span class="mask"><span>Mode d’emploi</span></span><span class="mask"><span style="--i:1">pour <em>agents IA</em></span></span></h1>
+      <p class="lead">Comment piloter Upscaler par l’interface : servir l’app, importer, choisir un modèle, agrandir, exporter et vérifier, avec les sélecteurs réels de la page. Même contenu en Markdown : <a class="lnk" href="../AGENTS.md">AGENTS.md</a>.</p>
+      <div class="meta lang-switch">
+        <a class="tag" href="#fr-intro">Français</a>
+        <a class="tag" href="#en-intro" hreflang="en">English</a>
+        <a class="tag" href="../AGENTS.md" type="text/markdown">AGENTS.md</a>
+        <a class="tag" href="../llms.txt" type="text/plain">llms.txt</a>
+        <a class="tag" href="../docs.html">Documentation (humains)</a>
+      </div>
+    </div>
+  </div>
+  <div class="in-w doc-grid">
+    <details class="toc" open>
+      <summary><span>Sommaire</span><span class="cur"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <nav class="toc-body" aria-label="Sommaire"><span class="toc-h" lang="fr">Français</span><ol><li><a href="#fr-regle-fondamentale"><span class="n">01</span><span>Règle fondamentale</span></a></li><li><a href="#fr-demarrer"><span class="n">02</span><span>Démarrer</span></a></li><li><a href="#fr-parcours-pas-a-pas"><span class="n">03</span><span>Parcours pas à pas</span></a></li><li><a href="#fr-selecteurs-stables"><span class="n">04</span><span>Sélecteurs stables</span></a></li><li><a href="#fr-etat-persistant"><span class="n">05</span><span>État persistant</span></a></li><li><a href="#fr-lobjet-interne-window-up"><span class="n">06</span><span>L’objet interne <code>window.UP</code></span></a></li><li><a href="#fr-exemple-complet-playwright-python"><span class="n">07</span><span>Exemple complet (Playwright, Python)</span></a></li><li><a href="#fr-verifications-avant-de-rendre-le-travail"><span class="n">08</span><span>Vérifications avant de rendre le travail</span></a></li><li><a href="#fr-limites-et-erreurs"><span class="n">09</span><span>Limites et erreurs</span></a></li><li><a href="#fr-logique-a-suivre-pour-chaque-tache"><span class="n">10</span><span>Logique à suivre pour chaque tâche</span></a></li></ol><div style="height:18px"></div><span class="toc-h" lang="en">English</span><ol><li><a href="#en-golden-rule"><span class="n">01</span><span>Golden rule</span></a></li><li><a href="#en-getting-started"><span class="n">02</span><span>Getting started</span></a></li><li><a href="#en-step-by-step"><span class="n">03</span><span>Step by step</span></a></li><li><a href="#en-stable-selectors"><span class="n">04</span><span>Stable selectors</span></a></li><li><a href="#en-persistent-state"><span class="n">05</span><span>Persistent state</span></a></li><li><a href="#en-the-internal-window-up-object"><span class="n">06</span><span>The internal <code>window.UP</code> object</span></a></li><li><a href="#en-complete-example-playwright-python"><span class="n">07</span><span>Complete example (Playwright, Python)</span></a></li><li><a href="#en-checks-before-handing-back"><span class="n">08</span><span>Checks before handing back</span></a></li><li><a href="#en-limits-and-errors"><span class="n">09</span><span>Limits and errors</span></a></li><li><a href="#en-logic-for-every-task"><span class="n">10</span><span>Logic for every task</span></a></li></ol></nav>
+    </details>
+    <article class="prose">
+<section id="fr-intro" lang="fr"><p>Ce document s’adresse aux agents IA (Claude Code, Codex, ou tout agent qui pilote un navigateur via Playwright / CDP). Il explique comment utiliser <strong>Upscaler</strong> (<code>app.html</code>), l’agrandisseur d’images par IA de Binks Design : importer des images, choisir un modèle, agrandir, comparer, retoucher et exporter.</p>
+<p>Il existe en deux endroits, toujours identiques : <code>AGENTS.md</code> (Markdown, français puis anglais) et la page <code>agent/index.html</code>. Résumé court : <code>llms.txt</code>.</p>
+<p>Points d’entrée découvrables sans JavaScript : <code>index.html</code> et <code>docs.html</code> déclarent <code>&lt;link rel="alternate" type="text/markdown" href="AGENTS.md"&gt;</code>, <code>&lt;link rel="help" href="agent/"&gt;</code> et <code>&lt;link rel="alternate" type="text/plain" href="llms.txt"&gt;</code>, contiennent un commentaire HTML et un <code>&lt;noscript&gt;</code> qui renvoient ici. <code>robots.txt</code> autorise tout et cite <code>llms.txt</code> et <code>AGENTS.md</code>.</p>
+</section>
+<section id="fr-regle-fondamentale" lang="fr"><h2><span class="n">01</span><span>Règle fondamentale</span></h2>
+<p>Upscaler <strong>agrandit</strong> les images que l’utilisateur fournit. Ce n’est pas un générateur d’images ni un outil de création de logo.</p>
+<ul>
+<li><strong>N’invente jamais</strong> une image, un logo, une couleur, une police ou un texte de marque. Les fichiers fournis par l’utilisateur <strong>font foi</strong> : ne les remplace pas par une image « approchante » trouvée ou générée ailleurs.</li>
+<li>N’annonce jamais un agrandissement comme un <strong>vectoriel</strong> : le résultat reste une image pixel. Ne redessine pas un logo ou un SVG fourni ; pour un logo destiné à un client, signale que le fichier vectoriel d’origine reste préférable.</li>
+<li>L’IA peut inventer des détails (texture, traits, lettres). Si la fidélité compte (packshot, document, archive, logo), choisis un modèle fidèle (<code>plksr4</code>, <code>plksr2</code>) ou baisse la <strong>Force de l’IA</strong>, et dis-le à l’utilisateur.</li>
+<li><strong>Licences</strong> : cinq modèles sont <strong>non commerciaux</strong> (CC BY-NC-SA) : <code>usv2lite</code>, <code>ultrasharp</code>, <code>usv2</code>, <code>remacri</code>, <code>animesharp</code>. Pour un travail commercial, prends un autre modèle ou demande à l’utilisateur.</li>
+<li><strong>Aucune clé API, aucun compte.</strong> L’app n’en utilise aucune ; ne demande jamais de clé à l’utilisateur.</li>
+<li><strong>Les images restent locales</strong> : rien n’est envoyé à un serveur. Seuls le moteur ONNX Runtime Web (CDN jsDelivr) et les modèles (Hugging Face) sont <strong>téléchargés</strong> vers le navigateur.</li>
+</ul>
+<p>Après chaque action : vérifie l’état dans la page (texte de <code>#dims</code>, <code>#toast</code>, carte <code>.m-card.sel</code>, fichier téléchargé). <strong>Un clic n’est pas une preuve de réussite.</strong></p>
+</section>
+<section id="fr-demarrer" lang="fr"><h2><span class="n">02</span><span>Démarrer</span></h2>
+<h3 id="fr-demarrer-servir-lapp">Servir l’app</h3>
+<p>Le dépôt est statique, sans étape de build : <code>index.html</code> (accueil), <code>app.html</code> (l’application, un seul fichier), <code>docs.html</code> (documentation), <code>agent/index.html</code> (cette page), <code>AGENTS.md</code>, <code>llms.txt</code>, <code>robots.txt</code> et <code>assets/</code> (pages uniquement).</p>
+<pre><code class="language-bash">python3 -m http.server 8000
+# puis ouvrir http://127.0.0.1:8000/app.html
+</code></pre>
+<ul>
+<li><strong>http:// recommandé.</strong> <code>file://</code> marche aussi, mais un seul cœur du processeur est alors utilisé.</li>
+<li><strong>Connexion Internet requise</strong> : au chargement, l’app télécharge ONNX Runtime Web 1.30.0 depuis <code>cdn.jsdelivr.net</code> ; au premier usage d’un modèle, elle le télécharge depuis <code>huggingface.co</code> (1,7 à 69 Mo) et le garde dans le cache du navigateur. Sans moteur, seuls <code>bicubic</code> et <code>nearest</code> fonctionnent.</li>
+<li>Au premier lancement, un <strong>mini-test</strong> du matériel télécharge ClearReality (1,7 Mo) et mesure la vitesse : attends qu’il finisse ou laisse l’agrandissement l’attendre.</li>
+<li>Utilise une fenêtre <strong>d’au moins 900 px de large, sans écran tactile</strong> : en dessous de 900 px (ou avec un pointeur tactile), l’interface passe en mode mobile (feuilles, barre d’onglets) et l’export ouvre une feuille de partage au lieu d’un téléchargement direct.</li>
+<li>En Chromium headless, WebGPU est souvent absent : le calcul tourne sur le processeur, nettement plus lentement. Prévois des délais longs (plusieurs minutes pour les gros modèles).</li>
+<li>Utilise un profil de navigateur dédié : les réglages sont mémorisés pour l’origine.</li>
+</ul>
+<h3 id="fr-demarrer-pas-dapi-publique">Pas d’API publique</h3>
+<p>Upscaler <strong>n’a pas d’API JavaScript publique</strong>. On le pilote par l’interface, avec les identifiants stables listés au § 4. Pour lire l’état, l’app expose aussi un objet interne <code>window.UP</code> (voir § 6), non documenté comme API : lecture seule de préférence.</p>
+</section>
+<section id="fr-parcours-pas-a-pas" lang="fr"><h2><span class="n">03</span><span>Parcours pas à pas</span></h2>
+<ol>
+<li><strong>Ouvrir</strong> <code>app.html</code> et attendre que le moteur charge (le texte de <code>#engineHint</code> ne doit pas annoncer « Moteur IA non chargé »).</li>
+<li><strong>Importer</strong> : <code>setInputFiles('#file', [...])</code> (accepte <code>image/*</code>, plusieurs fichiers). Ou les exemples : <code>#demoPhoto</code> / <code>#emptyDemo</code> (portrait 260 × 390), <code>#demoLogo</code> / <code>#emptyLogo</code> (logo 170 × 170, choisit <code>anime</code>). L’image apparaît dans <code>#queue</code> et devient l’image sélectionnée.</li>
+<li><strong>Choisir le modèle</strong> : onglet <code>.tab[data-tab="model"]</code>, puis <code>.m-card[data-id="&lt;id&gt;"]</code> (ou une puce de <code>#guide</code>). Vérifie <code>.m-card.sel</code>.</li>
+<li><strong>Régler</strong> : onglet <code>.tab[data-tab="set"]</code>.<ul>
+<li>Facteur : <code>#factorSeg button</code> dont le texte est <code>×2</code>, <code>×3</code>, <code>×4</code> ou <code>×8</code> (le bouton actif a la classe <code>on</code>).</li>
+<li>Ou largeur précise : remplir <code>#customW</code> (16 à 32 000 px ; vide ou 0 = facteur).</li>
+<li><code>#outInfo</code> affiche la taille du résultat, le nombre de passes et le temps estimé, ou « Trop grand… ».</li>
+<li>Curseurs (<code>input type="range"</code>) : <code>#denoise</code> (0–100, défaut 0), <code>#mix</code> Force de l’IA (0–100, défaut 100), <code>#sharp</code> (0–100, défaut 0), <code>#grain</code> (0–100, défaut 0). Pour les régler : <code>el.value = n; el.dispatchEvent(new Event('input', {bubbles: true}))</code>.</li>
+<li>Transparence (visible seulement si l’image en a) : <code>#alphaSeg button[data-v="ai"|"fast"]</code>.</li>
+<li>Moteur : <code>#epSeg button[data-v="auto"|"webgpu"|"wasm"]</code> ; tuiles : <code>#tileSeg button[data-v="0"|"64"|"128"|"256"|"384"]</code>.</li>
+</ul>
+</li>
+<li><strong>Agrandir</strong> : <code>#runBtn</code> (ou <code>Ctrl</code>/<code>Cmd</code> + <code>Entrée</code>). Pendant le calcul, <code>#progress</code> est visible (<code>#pgTitle</code>, <code>#pgSub</code> : « tuile 8/15 · encore ~8 s ») ; <code>#pgCancel</code> annule.</li>
+<li><strong>Attendre la fin</strong> : <code>#toast</code> commence par « Terminé en … · L × H px ». <code>#dims</code> passe à <code>260 × 390 → 1 040 × 1 560</code>. Un échec affiche un message d’erreur dans <code>#toast</code> (§ 8).</li>
+<li><strong>Comparer</strong> (facultatif) : <code>#compareBtn</code> (ou touche <code>C</code>), <code>#refSel</code> pour choisir la référence, zoom <code>[data-z="fit"|"1"|"2"|"4"]</code>.</li>
+<li><strong>Exporter</strong> : onglet <code>.tab[data-tab="out"]</code>, format <code>#fmtSeg button[data-v="png"|"jpeg"|"webp"]</code>, qualité <code>#qual</code> (50–100, JPEG/WebP), résolution <code>#dpiSeg button[data-v="72"|"150"|"300"]</code>, nom <code>#fname</code>. Puis <code>#exportOne</code> ou <code>#exportBtn</code> : déclenche un <strong>téléchargement</strong> du navigateur (événement <code>download</code> dans Playwright).</li>
+<li><strong>Lot</strong> : <code>#runAll</code> (Tout agrandir, saute les images déjà faites avec ce modèle et ce facteur ; toast final « N images agrandies »), puis <code>#exportZip</code> ou <code>#zipAll</code> → <code>upscaler-binks.zip</code>.</li>
+</ol>
+<h3 id="fr-parcours-pas-a-pas-fichiers-produits">Fichiers produits</h3>
+<ul>
+<li>Nom par défaut : <code>&lt;nom&gt;_x&lt;facteur&gt;_&lt;id-modèle&gt;.&lt;ext&gt;</code>, ex. <code>photo-exemple_x4_clear.png</code> (<code>#fname</code> le modifie, sans extension).</li>
+<li>Extension : <code>png</code>, <code>jpg</code> ou <code>webp</code>. En JPEG, la transparence devient blanche.</li>
+<li>Les dpi sont inscrits dans les PNG (bloc pHYs) et JPEG (JFIF) ; ils ne changent pas les pixels.</li>
+<li>ZIP : <code>upscaler-binks.zip</code>, une image par image agrandie, dans le format choisi.</li>
+<li>Les fichiers vont dans le dossier de téléchargement du navigateur : avec Playwright, récupère-les par <code>page.wait_for_event('download')</code> puis <code>save_as()</code>.</li>
+</ul>
+</section>
+<section id="fr-selecteurs-stables" lang="fr"><h2><span class="n">04</span><span>Sélecteurs stables</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Sélecteur</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#file</code></td>
+<td>champ fichier caché (<code>accept="image/*" multiple</code>)</td>
+</tr>
+<tr>
+<td><code>#drop</code></td>
+<td>zone « Importe tes images » (clic ou dépôt)</td>
+</tr>
+<tr>
+<td><code>#demoPhoto</code>, <code>#emptyDemo</code></td>
+<td>photo d’exemple</td>
+</tr>
+<tr>
+<td><code>#demoLogo</code>, <code>#emptyLogo</code></td>
+<td>logo d’exemple (passe au modèle <code>anime</code>)</td>
+</tr>
+<tr>
+<td><code>#emptyImport</code></td>
+<td>ouvre le sélecteur de fichiers (écran vide)</td>
+</tr>
+<tr>
+<td><code>#queue .q-item</code>, <code>.q-item.sel</code>, <code>.q-x</code></td>
+<td>liste des images, image sélectionnée, retirer</td>
+</tr>
+<tr>
+<td><code>#clearAll</code></td>
+<td>tout retirer</td>
+</tr>
+<tr>
+<td><code>.tab[data-tab]</code> (<code>model</code>, <code>set</code>, <code>out</code>)</td>
+<td>onglets Modèle, Réglages, Export</td>
+</tr>
+<tr>
+<td><code>#guide .chip</code></td>
+<td>guide « Je veux agrandir… »</td>
+</tr>
+<tr>
+<td><code>.m-card[data-id]</code>, <code>.m-card.sel</code></td>
+<td>cartes de modèle, modèle choisi</td>
+</tr>
+<tr>
+<td><code>#factorSeg button</code>, <code>#customW</code></td>
+<td>facteur, largeur précise</td>
+</tr>
+<tr>
+<td><code>#denoise</code>, <code>#mix</code>, <code>#sharp</code>, <code>#grain</code>, <code>#qual</code></td>
+<td>curseurs</td>
+</tr>
+<tr>
+<td><code>#alphaSeg</code>, <code>#epSeg</code>, <code>#tileSeg</code>, <code>#fmtSeg</code>, <code>#dpiSeg</code> (<code>button[data-v]</code>)</td>
+<td>choix segmentés</td>
+</tr>
+<tr>
+<td><code>#fname</code></td>
+<td>nom du fichier exporté</td>
+</tr>
+<tr>
+<td><code>#runBtn</code>, <code>#runAll</code></td>
+<td>agrandir, tout agrandir</td>
+</tr>
+<tr>
+<td><code>#pgCancel</code>, <code>#progress</code>, <code>#pgTitle</code>, <code>#pgSub</code>, <code>#pgBar</code></td>
+<td>progression</td>
+</tr>
+<tr>
+<td><code>#toast</code></td>
+<td>messages (fin, export, erreurs)</td>
+</tr>
+<tr>
+<td><code>#dims</code>, <code>#outInfo</code>, <code>#printInfo</code></td>
+<td>tailles, temps estimé, taille d’impression</td>
+</tr>
+<tr>
+<td><code>#exportBtn</code>, <code>#exportOne</code>, <code>#exportZip</code>, <code>#zipAll</code></td>
+<td>exports</td>
+</tr>
+<tr>
+<td><code>#compareBtn</code>, <code>#refSel</code>, <code>[data-z]</code></td>
+<td>comparaison, référence, zoom</td>
+</tr>
+<tr>
+<td><code>#hwBox</code>, <code>#benchBtn</code>, <code>#engineHint</code></td>
+<td>matériel, refaire le mini-test, état du moteur</td>
+</tr>
+<tr>
+<td><code>#clearCache</code></td>
+<td>vider les modèles téléchargés</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="fr-selecteurs-stables-identifiants-des-modeles-data-id">Identifiants des modèles (<code>data-id</code>)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>id</th>
+<th>Nom</th>
+<th>Facteur</th>
+<th>Poids</th>
+<th>Licence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>general</code></td>
+<td>Real-ESRGAN General</td>
+<td>×4</td>
+<td>4,9 Mo</td>
+<td>BSD-3</td>
+</tr>
+<tr>
+<td><code>usv2lite</code></td>
+<td>UltraSharp V2 Lite</td>
+<td>×4</td>
+<td>28,5 Mo</td>
+<td>CC BY-NC-SA (non commercial)</td>
+</tr>
+<tr>
+<td><code>ultrasharp</code></td>
+<td>UltraSharp</td>
+<td>×4</td>
+<td>64 Mo</td>
+<td>CC BY-NC-SA (non commercial)</td>
+</tr>
+<tr>
+<td><code>usv2</code></td>
+<td>UltraSharp V2 Max</td>
+<td>×4</td>
+<td>49,4 Mo</td>
+<td>CC BY-NC-SA (non commercial)</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>ClearReality</td>
+<td>×4</td>
+<td>1,7 Mo</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><code>clearsoft</code></td>
+<td>ClearReality Soft</td>
+<td>×4</td>
+<td>1,7 Mo</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><code>x4plus</code></td>
+<td>Real-ESRGAN x4plus</td>
+<td>×4</td>
+<td>68,3 Mo</td>
+<td>BSD-3</td>
+</tr>
+<tr>
+<td><code>plksr4</code></td>
+<td>RealPLKSR Fidèle x4</td>
+<td>×4</td>
+<td>28,3 Mo</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>plksr2</code></td>
+<td>RealPLKSR Fidèle x2</td>
+<td>×2</td>
+<td>28,3 Mo</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>nomos2</code></td>
+<td>Nomos2</td>
+<td>×4</td>
+<td>69,1 Mo</td>
+<td>CC BY 4.0</td>
+</tr>
+<tr>
+<td><code>remacri</code></td>
+<td>Remacri</td>
+<td>×4</td>
+<td>68,3 Mo</td>
+<td>CC BY-NC-SA (non commercial)</td>
+</tr>
+<tr>
+<td><code>swin2sr</code></td>
+<td>Swin2SR anti-JPEG</td>
+<td>×4</td>
+<td>52,5 Mo</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><code>anime</code></td>
+<td>Real-ESRGAN Aplats</td>
+<td>×4</td>
+<td>4,9 Mo</td>
+<td>BSD-3</td>
+</tr>
+<tr>
+<td><code>apisr4</code></td>
+<td>APISR x4</td>
+<td>×4</td>
+<td>6,2 Mo</td>
+<td>GPL-3.0</td>
+</tr>
+<tr>
+<td><code>apisr2</code></td>
+<td>APISR x2</td>
+<td>×2</td>
+<td>17,1 Mo</td>
+<td>GPL-3.0</td>
+</tr>
+<tr>
+<td><code>animesharp</code></td>
+<td>AnimeSharp V3</td>
+<td>×2</td>
+<td>63,9 Mo</td>
+<td>CC BY-NC-SA (non commercial)</td>
+</tr>
+<tr>
+<td><code>bicubic</code></td>
+<td>Bicubique (sans IA)</td>
+<td>libre</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>nearest</code></td>
+<td>Pixel art (sans IA)</td>
+<td>libre</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Rapides pour tester ou traiter un lot : <code>clear</code>, <code>clearsoft</code>, <code>general</code>, <code>anime</code>.</p>
+</section>
+<section id="fr-etat-persistant" lang="fr"><h2><span class="n">05</span><span>État persistant</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Emplacement</th>
+<th>Clé</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-v1</code></td>
+<td>réglages JSON : <code>model</code>, <code>factor</code>, <code>customW</code>, <code>denoise</code>, <code>alpha</code>, <code>mix</code>, <code>sharp</code>, <code>grain</code>, <code>ep</code>, <code>tile</code>, <code>fmt</code>, <code>qual</code>, <code>dpi</code>, <code>compare</code></td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-hw</code></td>
+<td>profil matériel du mini-test</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-speed</code></td>
+<td>vitesses mesurées par modèle et moteur</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-running</code></td>
+<td>repère posé pendant un calcul ; s’il reste au rechargement, l’app passe en mode prudent (processeur ou tuiles de 64 px)</td>
+</tr>
+<tr>
+<td>Cache Storage</td>
+<td><code>binks-upscaler-models-v1</code></td>
+<td>fichiers <code>.onnx</code> téléchargés (<code>#clearCache</code> les supprime)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Les images et les résultats ne sont pas sauvegardés</strong> : un rechargement les efface. Exporte avant de recharger ou de fermer.</p>
+</section>
+<section id="fr-lobjet-interne-window-up" lang="fr"><h2><span class="n">06</span><span>L’objet interne <code>window.UP</code></span></h2>
+<p>L’app expose, tel quel, un objet interne utile pour <strong>lire</strong> l’état. Ce n’est pas une API publique : pas de garantie de stabilité, et modifier ses valeurs directement ne met pas l’interface à jour ni n’enregistre les réglages.</p>
+<pre><code class="language-js">UP.items          // images importées : {id, name, w, h, alpha, results, res, …}
+UP.cur            // image sélectionnée (ou null)
+UP.cur.res        // dernier résultat : {model, name, F, W, H, secs, …} (ou null)
+UP.S              // réglages courants (même contenu que binks-upscaler-v1)
+UP.Engine.ready   // true quand le moteur ONNX est chargé
+UP.Engine.hw      // matériel détecté : {gpu, cores, mem, threads}
+UP.Engine.backend // 'webgpu' ou 'wasm' pour le dernier calcul
+UP.pickModel(id)  // choisit un modèle (équivaut au clic sur sa carte)
+UP.run(UP.cur)    // lance l'agrandissement (Promise ; rejette en cas d'erreur)
+</code></pre>
+<p>Préfère les clics pour tout ce qui modifie l’état ; utilise <code>UP</code> pour vérifier (ex. <code>UP.cur.res.W</code>).</p>
+</section>
+<section id="fr-exemple-complet-playwright-python" lang="fr"><h2><span class="n">07</span><span>Exemple complet (Playwright, Python)</span></h2>
+<pre><code class="language-python">from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    b = p.chromium.launch()
+    page = b.new_page(viewport={&quot;width&quot;: 1440, &quot;height&quot;: 900}, accept_downloads=True)
+    page.goto(&quot;http://127.0.0.1:8000/app.html&quot;)
+    page.wait_for_function(&quot;window.UP &amp;&amp; UP.Engine.ready&quot;, timeout=120_000)
+
+    page.set_input_files(&quot;#file&quot;, &quot;photo.jpg&quot;)
+    page.click('.tab[data-tab=&quot;model&quot;]')
+    page.click('.m-card[data-id=&quot;clear&quot;]')
+    page.click('.tab[data-tab=&quot;set&quot;]')
+    page.click('#factorSeg button:has-text(&quot;×4&quot;)')
+    page.click(&quot;#runBtn&quot;)
+    page.wait_for_function(
+        &quot;document.querySelector('#toast').textContent.startsWith('Terminé')&quot;,
+        timeout=900_000)
+    print(page.inner_text(&quot;#dims&quot;))          # ex. 260 × 390 → 1 040 × 1 560
+
+    page.click('.tab[data-tab=&quot;out&quot;]')
+    page.click('#fmtSeg button[data-v=&quot;png&quot;]')
+    page.click('#dpiSeg button[data-v=&quot;300&quot;]')
+    with page.expect_download() as d:
+        page.click(&quot;#exportOne&quot;)
+    d.value.save_as(&quot;photo_x4_clear.png&quot;)
+    b.close()
+</code></pre>
+</section>
+<section id="fr-verifications-avant-de-rendre-le-travail" lang="fr"><h2><span class="n">08</span><span>Vérifications avant de rendre le travail</span></h2>
+<ul>
+<li>Le fichier téléchargé existe, s’ouvre, a le bon format et <strong>les dimensions attendues</strong> (largeur × facteur, ou la largeur précise demandée).</li>
+<li>Le modèle utilisé est celui demandé (<code>UP.cur.res.model</code>), et sa licence convient à l’usage (commercial ou non).</li>
+<li>Regarde le résultat à 100 % ou 200 % : artefacts, détails inventés, lettres déformées, bords d’un logo. Signale ce que tu vois.</li>
+<li>Si la retouche (<code>#mix</code>, <code>#sharp</code>, <code>#grain</code>) a été modifiée, dis-le : elle est appliquée à l’export.</li>
+<li>Rappelle à l’utilisateur que le résultat est une image pixel, pas un vectoriel.</li>
+</ul>
+</section>
+<section id="fr-limites-et-erreurs" lang="fr"><h2><span class="n">09</span><span>Limites et erreurs</span></h2>
+<ul>
+<li><strong>Taille maximale</strong> : 16 384 px de côté ; en mégapixels selon la mémoire (24 Mpx jusqu’à 2 Go, 48 jusqu’à 4 Go, 80 au-delà, 64 si inconnue ; 16 sur iPhone/iPad, 16 ou 24 sur Android ; 200 Mpx pour <code>bicubic</code> et <code>nearest</code> sur ordinateur). Au-delà, <code>#runBtn</code> affiche « Trop grand : … » et ne lance rien.</li>
+<li><strong>Plusieurs passes</strong> : un modèle ×4 fait deux passes pour ×8, un modèle ×2 en fait trois ; le temps augmente fortement.</li>
+<li><strong>Retouche en direct</strong> : nécessite WebGL 2 et est désactivée au-delà de 60 Mpx (ordinateur).</li>
+<li>Messages d’erreur possibles dans <code>#toast</code> :</li>
+<li>« Le moteur IA n’a pas pu se charger (connexion ou bloqueur de pubs ?). Recharge la page. »</li>
+<li>« Téléchargement du modèle impossible. Vérifie ta connexion. »</li>
+<li>« Plus assez de mémoire : réduis l’agrandissement ou la taille des tuiles. »</li>
+<li>« Le calcul s’est arrêté (mémoire ?). Réessaie avec un facteur plus petit. »</li>
+<li>« Agrandis d’abord au moins une image » (ZIP sans résultat).</li>
+<li>« Annulé ».</li>
+<li>Si la carte graphique cale, l’app bascule sur le processeur et affiche « La carte graphique a calé, je continue sur le processeur (plus lent). ».</li>
+</ul>
+</section>
+<section id="fr-logique-a-suivre-pour-chaque-tache" lang="fr"><h2><span class="n">10</span><span>Logique à suivre pour chaque tâche</span></h2>
+<ol>
+<li>Identifie l’image et l’usage (écran, impression, client, commercial ou non).</li>
+<li>Choisis le modèle selon le guide : photo propre → <code>usv2lite</code> (ou <code>clear</code> si rapide) ; photo abîmée → <code>nomos2</code> ; très compressée → <code>swin2sr</code> ; logo/aplats → <code>anime</code> ; ne rien inventer → <code>plksr4</code> ; pixel art → <code>nearest</code>. Vérifie la licence.</li>
+<li>Fixe le facteur ou la largeur cible ; lis <code>#outInfo</code> (taille, passes, temps).</li>
+<li>Agrandis, attends « Terminé », vérifie <code>#dims</code>.</li>
+<li>Contrôle visuellement ; ajuste <code>#mix</code> si le rendu est trop artificiel.</li>
+<li>Exporte dans le format et la résolution demandés ; vérifie le fichier.</li>
+<li>Rends le fichier avec : modèle utilisé, facteur, dimensions, format, dpi, et toute réserve (détails inventés, licence non commerciale, pas un vectoriel).</li>
+</ol>
+</section>
+<section id="en-intro" lang="en"><p>This document is for AI agents (Claude Code, Codex, or any agent driving a browser through Playwright / CDP). It explains how to use <strong>Upscaler</strong> (<code>app.html</code>), Binks Design’s AI image upscaler: import images, pick a model, upscale, compare, fine-tune and export.</p>
+<p>It lives in two places, always identical: <code>AGENTS.md</code> (Markdown, French then English) and the <code>agent/index.html</code> page. Short summary: <code>llms.txt</code>.</p>
+<p>Entry points discoverable without JavaScript: <code>index.html</code> and <code>docs.html</code> declare <code>&lt;link rel="alternate" type="text/markdown" href="AGENTS.md"&gt;</code>, <code>&lt;link rel="help" href="agent/"&gt;</code> and <code>&lt;link rel="alternate" type="text/plain" href="llms.txt"&gt;</code>, and contain an HTML comment and a <code>&lt;noscript&gt;</code> pointing here. <code>robots.txt</code> allows everything and mentions <code>llms.txt</code> and <code>AGENTS.md</code>.</p>
+</section>
+<section id="en-golden-rule" lang="en"><h2><span class="n">01</span><span>Golden rule</span></h2>
+<p>Upscaler <strong>enlarges</strong> images the user provides. It is not an image generator nor a logo tool.</p>
+<ul>
+<li><strong>Never invent</strong> an image, a logo, a colour, a font or brand copy. Files provided by the user <strong>are the reference</strong>: never replace them with a “similar” image found or generated elsewhere.</li>
+<li>Never present an upscale as a <strong>vector</strong>: the result is still a raster image. Do not redraw a provided logo or SVG; for a client logo, point out that the original vector file is preferable.</li>
+<li>AI can invent detail (texture, strokes, letters). When fidelity matters (packshot, document, archive, logo), use a faithful model (<code>plksr4</code>, <code>plksr2</code>) or lower <strong>AI strength</strong>, and tell the user.</li>
+<li><strong>Licences</strong>: five models are <strong>non-commercial</strong> (CC BY-NC-SA): <code>usv2lite</code>, <code>ultrasharp</code>, <code>usv2</code>, <code>remacri</code>, <code>animesharp</code>. For commercial work, use another model or ask the user.</li>
+<li><strong>No API key, no account.</strong> The app uses none; never ask the user for a key.</li>
+<li><strong>Images stay local</strong>: nothing is uploaded to a server. Only the ONNX Runtime Web engine (jsDelivr CDN) and the models (Hugging Face) are <strong>downloaded</strong> to the browser.</li>
+</ul>
+<p>After every action, check the state in the page (<code>#dims</code> text, <code>#toast</code>, <code>.m-card.sel</code>, downloaded file). <strong>A click is not proof of success.</strong></p>
+</section>
+<section id="en-getting-started" lang="en"><h2><span class="n">02</span><span>Getting started</span></h2>
+<h3 id="en-getting-started-serve-the-app">Serve the app</h3>
+<p>The repository is static, with no build step: <code>index.html</code> (home), <code>app.html</code> (the app, one single file), <code>docs.html</code> (documentation), <code>agent/index.html</code> (this page), <code>AGENTS.md</code>, <code>llms.txt</code>, <code>robots.txt</code> and <code>assets/</code> (pages only).</p>
+<pre><code class="language-bash">python3 -m http.server 8000
+# then open http://127.0.0.1:8000/app.html
+</code></pre>
+<ul>
+<li><strong>http:// recommended.</strong> <code>file://</code> also works, but only one CPU core is then used.</li>
+<li><strong>Internet connection required</strong>: on load, the app downloads ONNX Runtime Web 1.30.0 from <code>cdn.jsdelivr.net</code>; the first time a model is used, it is downloaded from <code>huggingface.co</code> (1.7 to 69 MB) and kept in the browser cache. Without the engine, only <code>bicubic</code> and <code>nearest</code> work.</li>
+<li>On first launch, a hardware <strong>mini-test</strong> downloads ClearReality (1.7 MB) and measures speed: let it finish, or let the upscale wait for it.</li>
+<li>Use a window <strong>at least 900 px wide, without touch</strong>: below 900 px (or with a coarse pointer) the UI switches to mobile mode (sheets, tab bar) and export opens a share sheet instead of a direct download.</li>
+<li>Headless Chromium usually has no WebGPU: inference runs on the CPU, much more slowly. Allow long timeouts (several minutes for big models).</li>
+<li>Use a dedicated browser profile: settings are remembered per origin.</li>
+</ul>
+<h3 id="en-getting-started-no-public-api">No public API</h3>
+<p>Upscaler <strong>has no public JavaScript API</strong>. Drive it through the UI with the stable identifiers listed in § 4. To read state, the app also exposes an internal object <code>window.UP</code> (see § 6), not documented as an API: prefer read-only use.</p>
+</section>
+<section id="en-step-by-step" lang="en"><h2><span class="n">03</span><span>Step by step</span></h2>
+<ol>
+<li><strong>Open</strong> <code>app.html</code> and wait for the engine to load (<code>#engineHint</code> must not say “Moteur IA non chargé”).</li>
+<li><strong>Import</strong>: <code>setInputFiles('#file', [...])</code> (accepts <code>image/*</code>, several files). Or the samples: <code>#demoPhoto</code> / <code>#emptyDemo</code> (260 × 390 portrait), <code>#demoLogo</code> / <code>#emptyLogo</code> (170 × 170 logo, selects <code>anime</code>). The image shows up in <code>#queue</code> and becomes the selected image.</li>
+<li><strong>Pick the model</strong>: tab <code>.tab[data-tab="model"]</code>, then <code>.m-card[data-id="&lt;id&gt;"]</code> (or a <code>#guide</code> chip). Check <code>.m-card.sel</code>.</li>
+<li><strong>Settings</strong>: tab <code>.tab[data-tab="set"]</code>.<ul>
+<li>Factor: <code>#factorSeg button</code> whose text is <code>×2</code>, <code>×3</code>, <code>×4</code> or <code>×8</code> (the active button has class <code>on</code>).</li>
+<li>Or exact width: fill <code>#customW</code> (16 to 32,000 px; empty or 0 = factor).</li>
+<li><code>#outInfo</code> shows the result size, number of passes and estimated time, or “Trop grand…”.</li>
+<li>Sliders (<code>input type="range"</code>): <code>#denoise</code> (0–100, default 0), <code>#mix</code> AI strength (0–100, default 100), <code>#sharp</code> (0–100, default 0), <code>#grain</code> (0–100, default 0). To set one: <code>el.value = n; el.dispatchEvent(new Event('input', {bubbles: true}))</code>.</li>
+<li>Transparency (only shown when the image has alpha): <code>#alphaSeg button[data-v="ai"|"fast"]</code>.</li>
+<li>Engine: <code>#epSeg button[data-v="auto"|"webgpu"|"wasm"]</code>; tiles: <code>#tileSeg button[data-v="0"|"64"|"128"|"256"|"384"]</code>.</li>
+</ul>
+</li>
+<li><strong>Upscale</strong>: <code>#runBtn</code> (or <code>Ctrl</code>/<code>Cmd</code> + <code>Enter</code>). While running, <code>#progress</code> is visible (<code>#pgTitle</code>, <code>#pgSub</code>: “tuile 8/15 · encore ~8 s”); <code>#pgCancel</code> cancels.</li>
+<li><strong>Wait for the end</strong>: <code>#toast</code> starts with “Terminé en … · W × H px”. <code>#dims</code> becomes <code>260 × 390 → 1 040 × 1 560</code>. A failure shows an error message in <code>#toast</code> (§ 9).</li>
+<li><strong>Compare</strong> (optional): <code>#compareBtn</code> (or key <code>C</code>), <code>#refSel</code> to choose the reference, zoom <code>[data-z="fit"|"1"|"2"|"4"]</code>.</li>
+<li><strong>Export</strong>: tab <code>.tab[data-tab="out"]</code>, format <code>#fmtSeg button[data-v="png"|"jpeg"|"webp"]</code>, quality <code>#qual</code> (50–100, JPEG/WebP), resolution <code>#dpiSeg button[data-v="72"|"150"|"300"]</code>, name <code>#fname</code>. Then <code>#exportOne</code> or <code>#exportBtn</code>: triggers a browser <strong>download</strong> (<code>download</code> event in Playwright).</li>
+<li><strong>Batch</strong>: <code>#runAll</code> (upscale all, skips images already done with this model and factor; final toast “N images agrandies”), then <code>#exportZip</code> or <code>#zipAll</code> → <code>upscaler-binks.zip</code>.</li>
+</ol>
+<h3 id="en-step-by-step-output-files">Output files</h3>
+<ul>
+<li>Default name: <code>&lt;name&gt;_x&lt;factor&gt;_&lt;model-id&gt;.&lt;ext&gt;</code>, e.g. <code>photo-exemple_x4_clear.png</code> (<code>#fname</code> changes it, without extension).</li>
+<li>Extension: <code>png</code>, <code>jpg</code> or <code>webp</code>. In JPEG, transparency becomes white.</li>
+<li>DPI is written into PNG (pHYs chunk) and JPEG (JFIF); it does not change pixels.</li>
+<li>ZIP: <code>upscaler-binks.zip</code>, one image per upscaled image, in the chosen format.</li>
+<li>Files go to the browser’s download folder: with Playwright, get them with <code>page.wait_for_event('download')</code> then <code>save_as()</code>.</li>
+</ul>
+</section>
+<section id="en-stable-selectors" lang="en"><h2><span class="n">04</span><span>Stable selectors</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Selector</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#file</code></td>
+<td>hidden file input (<code>accept="image/*" multiple</code>)</td>
+</tr>
+<tr>
+<td><code>#drop</code></td>
+<td>“Importe tes images” zone (click or drop)</td>
+</tr>
+<tr>
+<td><code>#demoPhoto</code>, <code>#emptyDemo</code></td>
+<td>sample photo</td>
+</tr>
+<tr>
+<td><code>#demoLogo</code>, <code>#emptyLogo</code></td>
+<td>sample logo (switches to the <code>anime</code> model)</td>
+</tr>
+<tr>
+<td><code>#emptyImport</code></td>
+<td>opens the file picker (empty screen)</td>
+</tr>
+<tr>
+<td><code>#queue .q-item</code>, <code>.q-item.sel</code>, <code>.q-x</code></td>
+<td>image list, selected image, remove</td>
+</tr>
+<tr>
+<td><code>#clearAll</code></td>
+<td>remove all</td>
+</tr>
+<tr>
+<td><code>.tab[data-tab]</code> (<code>model</code>, <code>set</code>, <code>out</code>)</td>
+<td>Model, Settings, Export tabs</td>
+</tr>
+<tr>
+<td><code>#guide .chip</code></td>
+<td>“Je veux agrandir…” guide</td>
+</tr>
+<tr>
+<td><code>.m-card[data-id]</code>, <code>.m-card.sel</code></td>
+<td>model cards, selected model</td>
+</tr>
+<tr>
+<td><code>#factorSeg button</code>, <code>#customW</code></td>
+<td>factor, exact width</td>
+</tr>
+<tr>
+<td><code>#denoise</code>, <code>#mix</code>, <code>#sharp</code>, <code>#grain</code>, <code>#qual</code></td>
+<td>sliders</td>
+</tr>
+<tr>
+<td><code>#alphaSeg</code>, <code>#epSeg</code>, <code>#tileSeg</code>, <code>#fmtSeg</code>, <code>#dpiSeg</code> (<code>button[data-v]</code>)</td>
+<td>segmented choices</td>
+</tr>
+<tr>
+<td><code>#fname</code></td>
+<td>exported file name</td>
+</tr>
+<tr>
+<td><code>#runBtn</code>, <code>#runAll</code></td>
+<td>upscale, upscale all</td>
+</tr>
+<tr>
+<td><code>#pgCancel</code>, <code>#progress</code>, <code>#pgTitle</code>, <code>#pgSub</code>, <code>#pgBar</code></td>
+<td>progress</td>
+</tr>
+<tr>
+<td><code>#toast</code></td>
+<td>messages (done, export, errors)</td>
+</tr>
+<tr>
+<td><code>#dims</code>, <code>#outInfo</code>, <code>#printInfo</code></td>
+<td>sizes, estimated time, print size</td>
+</tr>
+<tr>
+<td><code>#exportBtn</code>, <code>#exportOne</code>, <code>#exportZip</code>, <code>#zipAll</code></td>
+<td>exports</td>
+</tr>
+<tr>
+<td><code>#compareBtn</code>, <code>#refSel</code>, <code>[data-z]</code></td>
+<td>compare, reference, zoom</td>
+</tr>
+<tr>
+<td><code>#hwBox</code>, <code>#benchBtn</code>, <code>#engineHint</code></td>
+<td>hardware, rerun mini-test, engine status</td>
+</tr>
+<tr>
+<td><code>#clearCache</code></td>
+<td>delete downloaded models</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="en-stable-selectors-model-ids-data-id">Model ids (<code>data-id</code>)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>id</th>
+<th>Name</th>
+<th>Factor</th>
+<th>Size</th>
+<th>Licence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>general</code></td>
+<td>Real-ESRGAN General</td>
+<td>×4</td>
+<td>4.9 MB</td>
+<td>BSD-3</td>
+</tr>
+<tr>
+<td><code>usv2lite</code></td>
+<td>UltraSharp V2 Lite</td>
+<td>×4</td>
+<td>28.5 MB</td>
+<td>CC BY-NC-SA (non-commercial)</td>
+</tr>
+<tr>
+<td><code>ultrasharp</code></td>
+<td>UltraSharp</td>
+<td>×4</td>
+<td>64 MB</td>
+<td>CC BY-NC-SA (non-commercial)</td>
+</tr>
+<tr>
+<td><code>usv2</code></td>
+<td>UltraSharp V2 Max</td>
+<td>×4</td>
+<td>49.4 MB</td>
+<td>CC BY-NC-SA (non-commercial)</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>ClearReality</td>
+<td>×4</td>
+<td>1.7 MB</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><code>clearsoft</code></td>
+<td>ClearReality Soft</td>
+<td>×4</td>
+<td>1.7 MB</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><code>x4plus</code></td>
+<td>Real-ESRGAN x4plus</td>
+<td>×4</td>
+<td>68.3 MB</td>
+<td>BSD-3</td>
+</tr>
+<tr>
+<td><code>plksr4</code></td>
+<td>RealPLKSR Fidèle x4</td>
+<td>×4</td>
+<td>28.3 MB</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>plksr2</code></td>
+<td>RealPLKSR Fidèle x2</td>
+<td>×2</td>
+<td>28.3 MB</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>nomos2</code></td>
+<td>Nomos2</td>
+<td>×4</td>
+<td>69.1 MB</td>
+<td>CC BY 4.0</td>
+</tr>
+<tr>
+<td><code>remacri</code></td>
+<td>Remacri</td>
+<td>×4</td>
+<td>68.3 MB</td>
+<td>CC BY-NC-SA (non-commercial)</td>
+</tr>
+<tr>
+<td><code>swin2sr</code></td>
+<td>Swin2SR anti-JPEG</td>
+<td>×4</td>
+<td>52.5 MB</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td><code>anime</code></td>
+<td>Real-ESRGAN Aplats</td>
+<td>×4</td>
+<td>4.9 MB</td>
+<td>BSD-3</td>
+</tr>
+<tr>
+<td><code>apisr4</code></td>
+<td>APISR x4</td>
+<td>×4</td>
+<td>6.2 MB</td>
+<td>GPL-3.0</td>
+</tr>
+<tr>
+<td><code>apisr2</code></td>
+<td>APISR x2</td>
+<td>×2</td>
+<td>17.1 MB</td>
+<td>GPL-3.0</td>
+</tr>
+<tr>
+<td><code>animesharp</code></td>
+<td>AnimeSharp V3</td>
+<td>×2</td>
+<td>63.9 MB</td>
+<td>CC BY-NC-SA (non-commercial)</td>
+</tr>
+<tr>
+<td><code>bicubic</code></td>
+<td>Bicubique (no AI)</td>
+<td>free</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>nearest</code></td>
+<td>Pixel art (no AI)</td>
+<td>free</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Fast ones for testing or batches: <code>clear</code>, <code>clearsoft</code>, <code>general</code>, <code>anime</code>.</p>
+</section>
+<section id="en-persistent-state" lang="en"><h2><span class="n">05</span><span>Persistent state</span></h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Key</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-v1</code></td>
+<td>JSON settings: <code>model</code>, <code>factor</code>, <code>customW</code>, <code>denoise</code>, <code>alpha</code>, <code>mix</code>, <code>sharp</code>, <code>grain</code>, <code>ep</code>, <code>tile</code>, <code>fmt</code>, <code>qual</code>, <code>dpi</code>, <code>compare</code></td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-hw</code></td>
+<td>hardware profile from the mini-test</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-speed</code></td>
+<td>measured speeds per model and engine</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td><code>binks-upscaler-running</code></td>
+<td>marker set during a run; if still present on reload, the app switches to a safe mode (CPU or 64 px tiles)</td>
+</tr>
+<tr>
+<td>Cache Storage</td>
+<td><code>binks-upscaler-models-v1</code></td>
+<td>downloaded <code>.onnx</code> files (<code>#clearCache</code> deletes them)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Images and results are not saved</strong>: a reload clears them. Export before reloading or closing.</p>
+</section>
+<section id="en-the-internal-window-up-object" lang="en"><h2><span class="n">06</span><span>The internal <code>window.UP</code> object</span></h2>
+<p>The app exposes, as is, an internal object that is handy to <strong>read</strong> state. It is not a public API: no stability guarantee, and changing its values directly neither updates the UI nor saves settings.</p>
+<pre><code class="language-js">UP.items          // imported images: {id, name, w, h, alpha, results, res, …}
+UP.cur            // selected image (or null)
+UP.cur.res        // latest result: {model, name, F, W, H, secs, …} (or null)
+UP.S              // current settings (same content as binks-upscaler-v1)
+UP.Engine.ready   // true once the ONNX engine is loaded
+UP.Engine.hw      // detected hardware: {gpu, cores, mem, threads}
+UP.Engine.backend // 'webgpu' or 'wasm' for the last run
+UP.pickModel(id)  // selects a model (same as clicking its card)
+UP.run(UP.cur)    // starts the upscale (Promise; rejects on error)
+</code></pre>
+<p>Prefer clicks for anything that changes state; use <code>UP</code> to check (e.g. <code>UP.cur.res.W</code>).</p>
+</section>
+<section id="en-complete-example-playwright-python" lang="en"><h2><span class="n">07</span><span>Complete example (Playwright, Python)</span></h2>
+<pre><code class="language-python">from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    b = p.chromium.launch()
+    page = b.new_page(viewport={&quot;width&quot;: 1440, &quot;height&quot;: 900}, accept_downloads=True)
+    page.goto(&quot;http://127.0.0.1:8000/app.html&quot;)
+    page.wait_for_function(&quot;window.UP &amp;&amp; UP.Engine.ready&quot;, timeout=120_000)
+
+    page.set_input_files(&quot;#file&quot;, &quot;photo.jpg&quot;)
+    page.click('.tab[data-tab=&quot;model&quot;]')
+    page.click('.m-card[data-id=&quot;clear&quot;]')
+    page.click('.tab[data-tab=&quot;set&quot;]')
+    page.click('#factorSeg button:has-text(&quot;×4&quot;)')
+    page.click(&quot;#runBtn&quot;)
+    page.wait_for_function(
+        &quot;document.querySelector('#toast').textContent.startsWith('Terminé')&quot;,
+        timeout=900_000)
+    print(page.inner_text(&quot;#dims&quot;))          # e.g. 260 × 390 → 1 040 × 1 560
+
+    page.click('.tab[data-tab=&quot;out&quot;]')
+    page.click('#fmtSeg button[data-v=&quot;png&quot;]')
+    page.click('#dpiSeg button[data-v=&quot;300&quot;]')
+    with page.expect_download() as d:
+        page.click(&quot;#exportOne&quot;)
+    d.value.save_as(&quot;photo_x4_clear.png&quot;)
+    b.close()
+</code></pre>
+</section>
+<section id="en-checks-before-handing-back" lang="en"><h2><span class="n">08</span><span>Checks before handing back</span></h2>
+<ul>
+<li>The downloaded file exists, opens, has the right format and <strong>the expected dimensions</strong> (width × factor, or the requested exact width).</li>
+<li>The model used is the one requested (<code>UP.cur.res.model</code>), and its licence fits the use (commercial or not).</li>
+<li>Look at the result at 100 % or 200 %: artefacts, invented detail, distorted letters, logo edges. Report what you see.</li>
+<li>If the live retouch (<code>#mix</code>, <code>#sharp</code>, <code>#grain</code>) was changed, say so: it is applied on export.</li>
+<li>Remind the user the result is a raster image, not a vector.</li>
+</ul>
+</section>
+<section id="en-limits-and-errors" lang="en"><h2><span class="n">09</span><span>Limits and errors</span></h2>
+<ul>
+<li><strong>Maximum size</strong>: 16,384 px per side; in megapixels depending on memory (24 MP up to 2 GB, 48 up to 4 GB, 80 above, 64 if unknown; 16 on iPhone/iPad, 16 or 24 on Android; 200 MP for <code>bicubic</code> and <code>nearest</code> on desktop). Beyond that, <code>#runBtn</code> shows “Trop grand : …” and does nothing.</li>
+<li><strong>Multiple passes</strong>: a ×4 model makes two passes for ×8, a ×2 model three; time grows sharply.</li>
+<li><strong>Live retouch</strong>: needs WebGL 2 and is disabled above 60 MP (desktop).</li>
+<li>Possible error messages in <code>#toast</code>:</li>
+<li>“Le moteur IA n’a pas pu se charger (connexion ou bloqueur de pubs ?). Recharge la page.” (engine failed to load)</li>
+<li>“Téléchargement du modèle impossible. Vérifie ta connexion.” (model download failed)</li>
+<li>“Plus assez de mémoire : réduis l’agrandissement ou la taille des tuiles.” (out of memory)</li>
+<li>“Le calcul s’est arrêté (mémoire ?). Réessaie avec un facteur plus petit.” (worker died)</li>
+<li>“Agrandis d’abord au moins une image” (ZIP with no result)</li>
+<li>“Annulé” (cancelled)</li>
+<li>If the GPU stalls, the app falls back to the CPU and shows “La carte graphique a calé, je continue sur le processeur (plus lent).”.</li>
+</ul>
+</section>
+<section id="en-logic-for-every-task" lang="en"><h2><span class="n">10</span><span>Logic for every task</span></h2>
+<ol>
+<li>Identify the image and the use (screen, print, client, commercial or not).</li>
+<li>Pick the model from the guide: clean photo → <code>usv2lite</code> (or <code>clear</code> for speed); damaged photo → <code>nomos2</code>; heavily compressed → <code>swin2sr</code>; logo/flat colours → <code>anime</code>; invent nothing → <code>plksr4</code>; pixel art → <code>nearest</code>. Check the licence.</li>
+<li>Set the factor or target width; read <code>#outInfo</code> (size, passes, time).</li>
+<li>Upscale, wait for “Terminé”, check <code>#dims</code>.</li>
+<li>Inspect visually; lower <code>#mix</code> if the result looks too artificial.</li>
+<li>Export in the requested format and resolution; check the file.</li>
+<li>Hand back the file with: model used, factor, dimensions, format, DPI, and any caveat (invented detail, non-commercial licence, not a vector).</li>
+</ol>
+</section>
+    </article>
+  </div>
+</main>
+<footer class="foot doc-foot">
+  <div class="in-w foot-in">
+    <span class="foot-l"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="13" width="8" height="8" rx="1" fill="#111"/><path d="M13 3h8v8M21 3l-8 8" stroke="#ff5500" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Upscaler · by binks design</span>
+    <ul class="foot-r">
+      <li><a href="../docs.html">Documentation</a></li>
+      <li><a href="../agent/index.html">Agents IA</a></li>
+      <li><a href="mailto:graphistedubinks@gmail.com">graphistedubinks@gmail.com</a></li>
+      <li><a class="pillk" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">Instagram @graphiste.binks</a></li>
+    </ul>
+    <small>Gratuit, sans compte, le calcul se fait dans ton navigateur. Modèles d’IA de leurs auteurs respectifs, licence affichée dans l’app. Polices de ces pages : Clash Display (<a href="../assets/fonts/ClashDisplay-FFL.txt">licence FFL</a>) et Instrument Sans (<a href="../assets/fonts/InstrumentSans-OFL.txt">licence OFL</a>).</small>
+  </div>
+</footer>
+</div>
+</body>
+</html>

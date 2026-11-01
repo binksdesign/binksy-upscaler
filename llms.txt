@@ -1,0 +1,20 @@
+# Upscaler
+
+> Agrandisseur d'images par IA, 100 % navigateur, par Binks Design. Il agrandit photos, logos et illustrations jusqu'à ×8 (ou à une largeur précise) avec 16 modèles d'IA (Real-ESRGAN, UltraSharp, ClearReality, RealPLKSR, Nomos2, Swin2SR, APISR…) plus Bicubique et Pixel art : avant/après, retouche en direct (force de l'IA, netteté, grain), export PNG, JPEG ou WebP à 72/150/300 dpi, ZIP pour un lot. Aucune clé API, aucun compte ; les images ne sont jamais envoyées (seuls le moteur ONNX Runtime Web et les modèles sont téléchargés depuis jsDelivr et Hugging Face).
+> AI image upscaler, browser-only, by Binks Design. It enlarges photos, logos and illustrations up to ×8 (or to an exact width) with 16 AI models plus Bicubic and Pixel art: before/after view, live retouch, PNG/JPEG/WebP export at 72/150/300 DPI, ZIP for batches. No API key, no account; images are never uploaded (only the ONNX Runtime Web engine and the models are downloaded).
+
+AI agents (Claude Code, Codex…) drive it through the UI of app.html: there is no public JavaScript API. Stable selectors: #file, .m-card[data-id], #factorSeg, #customW, #runBtn, #toast, #dims, #fmtSeg, #dpiSeg, #exportOne, #runAll, #exportZip. An internal object window.UP (items, cur, S, Engine, pickModel, run) can be read for state; it is not a stable API.
+Serve the folder over http (python3 -m http.server) and open app.html with a desktop viewport (≥ 900 px wide). An Internet connection is needed for the engine and model downloads. Images and results are not saved across reloads; settings are (localStorage binks-upscaler-v1).
+
+Golden rule: enlarge the user's files only; never invent or redraw an image or logo, never present an upscale as a vector, and respect model licences (5 models are non-commercial).
+
+## Docs
+
+- [AGENTS.md](AGENTS.md): full guide for AI agents (Markdown, French then English)
+- [agent/index.html](agent/index.html): same guide as an HTML page
+- [docs.html](docs.html): human documentation (French)
+
+## App
+
+- [app.html](app.html): the upscaler
+- [index.html](index.html): home page
