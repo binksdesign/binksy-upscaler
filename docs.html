@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Documentation — Upscaler</title>
+<meta name="description" content="Mode d’emploi d’Upscaler : importer des images, choisir parmi 16 modèles d’IA, agrandir jusqu’à ×8, comparer, retoucher, exporter en PNG, JPEG ou WebP, moteur carte graphique ou processeur, limites et FAQ.">
+<meta name="theme-color" content="#111111">
+<meta name="author" content="Binks Design">
+<meta property="og:title" content="Documentation — Upscaler">
+<meta property="og:description" content="Mode d’emploi d’Upscaler : importer, choisir un modèle, agrandir jusqu’à ×8, comparer, retoucher et exporter, tout dans ton navigateur.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Cg transform='translate(4 4)'%3E%3Crect x='3' y='13' width='8' height='8' rx='1' fill='%23f2f2f0'/%3E%3Cpath d='M13 3h8v8M21 3l-8 8' stroke='%23ff5500' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="alternate" type="text/markdown" href="AGENTS.md" title="Mode d’emploi pour agents IA (Markdown, FR puis EN)">
+<link rel="help" href="agent/" title="Agents IA">
+<link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
+<link rel="stylesheet" href="assets/site.css">
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('anim');</script>
+<script src="assets/site.js" defer></script>
+</head>
+<!-- Agents IA / AI agents : lisez AGENTS.md (Markdown, français puis anglais) ou agent/index.html avant d’agir. L’application est app.html ; pas d’API publique : pilotage par l’interface (identifiants HTML stables). Aucune clé API ; les images restent dans le navigateur. -->
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<noscript><p style="margin:0;padding:10px 18px;background:#ff5500;color:#0b0b0b;font:600 14px/1.4 sans-serif">Agents IA : le mode d’emploi complet est dans <a href="AGENTS.md">AGENTS.md</a> (page HTML : <a href="agent/index.html">agent/</a>). L’application (<a href="app.html">app.html</a>) a besoin de JavaScript.</p></noscript>
+<header class="top">
+  <a class="brand" href="index.html" aria-label="Upscaler — accueil"><span class="mk"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="13" width="8" height="8" rx="1" fill="#f2f2f0"/><path d="M13 3h8v8M21 3l-8 8" stroke="#ff5500" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Upscaler</b></a>
+  <a class="sig" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">by binks design</a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="index.html">Accueil</a>
+    <a href="docs.html" aria-current="page">Documentation</a>
+    <a href="agent/index.html">Agents IA</a>
+    <a class="cta" href="app.html">Ouvrir l’app</a>
+  </nav>
+</header>
+<div class="sheet"><main id="contenu">
+  <div class="doc-hero">
+    <div class="plane" aria-hidden="true"></div>
+    <div class="in-w">
+      <p class="kicker"><i aria-hidden="true"></i>Documentation · Upscaler by binks design</p>
+      <h1 class="doc-h1"><span class="mask"><span>Mode</span></span><span class="mask"><span style="--i:1">d’<em>emploi</em></span></span></h1>
+      <p class="lead">Tout ce qu’il faut savoir pour agrandir une photo, un logo ou une illustration avec l’IA, directement dans ton navigateur, puis l’exporter prête pour l’écran ou l’impression.</p>
+      <div class="meta">
+        <a class="tag" href="app.html">Ouvrir l’app</a>
+        <a class="tag" href="#modeles">Choisir un modèle</a>
+        <a class="tag" href="agent/index.html">Agents IA</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="in-w doc-grid">
+    <details class="toc" open>
+      <summary><span>Sommaire</span><span class="cur"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <nav class="toc-body" aria-label="Sommaire">
+        <span class="toc-h">Sommaire</span>
+        <ol>
+          <li><a href="#demarrer"><span class="n">01</span><span>Démarrer</span></a></li>
+          <li><a href="#importer"><span class="n">02</span><span>Importer des images</span></a></li>
+          <li><a href="#modeles"><span class="n">03</span><span>Choisir un modèle</span></a></li>
+          <li><a href="#logos"><span class="n">04</span><span>Logos, aplats, pixel art</span></a></li>
+          <li><a href="#agrandissement"><span class="n">05</span><span>Agrandissement</span></a></li>
+          <li><a href="#avant-ia"><span class="n">06</span><span>Avant l’IA</span></a></li>
+          <li><a href="#comparer"><span class="n">07</span><span>Comparer et zoomer</span></a></li>
+          <li><a href="#retouche"><span class="n">08</span><span>Retouche en direct</span></a></li>
+          <li><a href="#exporter"><span class="n">09</span><span>Exporter</span></a></li>
+          <li><a href="#lot"><span class="n">10</span><span>Traiter un lot</span></a></li>
+          <li><a href="#moteur"><span class="n">11</span><span>Moteur et matériel</span></a></li>
+          <li><a href="#mobile"><span class="n">12</span><span>Sur téléphone et tablette</span></a></li>
+          <li><a href="#raccourcis"><span class="n">13</span><span>Raccourcis clavier</span></a></li>
+          <li><a href="#sauvegarde"><span class="n">14</span><span>Ce qui est mémorisé</span></a></li>
+          <li><a href="#licences"><span class="n">15</span><span>Licences des modèles</span></a></li>
+          <li><a href="#faq"><span class="n">16</span><span>FAQ et limites</span></a></li>
+          <li><a href="#agents"><span class="n">17</span><span>Agents IA</span></a></li>
+        </ol>
+      </nav>
+    </details>
+
+    <article class="prose">
+
+      <section id="demarrer">
+        <h2><span class="n">01</span><span>Démarrer</span></h2>
+        <p>L’application est une seule page, <a href="app.html">app.html</a>. Rien à installer, aucun compte à créer : ouvre la page, importe, choisis un modèle, agrandis, exporte.</p>
+        <ol>
+          <li><strong>Importe</strong> une ou plusieurs images (ou une image d’exemple).</li>
+          <li><strong>Choisis un modèle</strong> dans l’onglet <strong>Modèle</strong>, ou via le guide « Je veux agrandir… ».</li>
+          <li><strong>Règle l’agrandissement</strong> dans <strong>Réglages</strong> : ×2, ×3, ×4, ×8 ou une largeur précise.</li>
+          <li>Clique <strong>Agrandir</strong>. Une barre montre l’avancement, tuile par tuile, avec le temps restant ; la croix l’annule.</li>
+          <li><strong>Compare</strong> avec l’original, <strong>retouche</strong> si besoin, puis <strong>Exporter</strong>.</li>
+        </ol>
+        <div class="note"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><p>Pour découvrir l’outil sans tes fichiers : <strong>Essayer avec l’exemple</strong> (ou <strong>Photo d’exemple</strong>) charge un portrait, <strong>Exemple logo</strong> (ou <strong>Logo d’exemple</strong>) charge un symbole en basse définition et choisit le modèle Real-ESRGAN Aplats.</p></div>
+        <p>Il faut une connexion Internet pour charger le moteur d’IA et pour télécharger un modèle la première fois. Tes images, elles, ne sont jamais envoyées.</p>
+      </section>
+
+      <section id="importer">
+        <h2><span class="n">02</span><span>Importer des images</span></h2>
+        <ul>
+          <li>Zone <strong>Importe tes images</strong> (une ou plusieurs à la fois) ;</li>
+          <li>glisser-déposer n’importe où sur la page ;</li>
+          <li>coller une image copiée (<code>Ctrl</code>/<code>Cmd</code> + <code>V</code>) — elle s’appelle alors <code>collage-1</code>, <code>collage-2</code>… ;</li>
+          <li>sur téléphone : photos, fichiers ou appareil photo.</li>
+        </ul>
+        <p>Tout format d’image que ton navigateur sait ouvrir est accepté (PNG, JPEG, WebP, GIF…). Les fichiers qui ne sont pas des images sont ignorés. Les images transparentes sont détectées : l’option <a href="#avant-ia">Transparence</a> apparaît alors.</p>
+        <p>Chaque image rejoint la liste <strong>Images</strong> avec sa vignette et sa taille. Clique une vignette pour la sélectionner, la croix pour la retirer, la corbeille pour tout retirer.</p>
+      </section>
+
+      <section id="modeles">
+        <h2><span class="n">03</span><span>Choisir un modèle</span></h2>
+        <p>Chaque carte de modèle indique son facteur natif (×2 ou ×4), une barre de vitesse avec le <strong>temps estimé pour ton image sur ton matériel</strong>, son poids à télécharger (ou <strong>Prêt</strong> s’il est déjà chez toi) et sa licence.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Je veux agrandir…</th><th>Modèle proposé</th></tr></thead>
+          <tbody>
+            <tr><td>Photo de bonne qualité</td><td>UltraSharp V2 Lite</td></tr>
+            <tr><td>Photo abîmée ou floue</td><td>Nomos2</td></tr>
+            <tr><td>Image très compressée</td><td>Swin2SR anti-JPEG</td></tr>
+            <tr><td>Logo ou aplats</td><td>Real-ESRGAN Aplats</td></tr>
+            <tr><td>Rien inventer</td><td>RealPLKSR Fidèle x4</td></tr>
+            <tr><td>Pixel art</td><td>Pixel art (sans IA)</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Tous les modèles</h3>
+        <div class="tbl"><table>
+          <thead><tr><th>Modèle</th><th>Facteur</th><th>Poids</th><th>Vitesse</th><th>Pour quoi</th></tr></thead>
+          <tbody>
+            <tr><td colspan="5"><strong>Polyvalent</strong></td></tr>
+            <tr><td>Real-ESRGAN General</td><td>×4</td><td>4,9 Mo</td><td>Très rapide</td><td>Le point de départ : rapide et propre sur à peu près tout.</td></tr>
+            <tr><td>UltraSharp V2 Lite</td><td>×4</td><td>28,5 Mo</td><td>Lent</td><td>Meilleur équilibre vitesse / qualité, rendu fin et naturel.</td></tr>
+            <tr><td>UltraSharp</td><td>×4</td><td>64 Mo</td><td>Lent</td><td>Netteté maximale sur une image déjà correcte ; peut accentuer les défauts JPEG.</td></tr>
+            <tr><td>UltraSharp V2 Max</td><td>×4</td><td>49,4 Mo</td><td>Très lent</td><td>Qualité maximale pour un visuel final important.</td></tr>
+            <tr><td colspan="5"><strong>Photo</strong></td></tr>
+            <tr><td>ClearReality</td><td>×4</td><td>1,7 Mo</td><td>Très rapide</td><td>Rendu naturel en quelques secondes, même sur un gros lot.</td></tr>
+            <tr><td>ClearReality Soft</td><td>×4</td><td>1,7 Mo</td><td>Très rapide</td><td>Plus doux : portraits et peau.</td></tr>
+            <tr><td>Real-ESRGAN x4plus</td><td>×4</td><td>68,3 Mo</td><td>Lent</td><td>Photos abîmées : nettoie bruit et compression, lisse un peu les textures.</td></tr>
+            <tr><td>RealPLKSR Fidèle x4</td><td>×4</td><td>28,3 Mo</td><td>Lent</td><td>N’ajoute pas de faux détails : packshot, archive, document.</td></tr>
+            <tr><td>RealPLKSR Fidèle x2</td><td>×2</td><td>28,3 Mo</td><td>Très lent</td><td>Doubler une photo correcte sans la dénaturer.</td></tr>
+            <tr><td>Nomos2</td><td>×4</td><td>69,1 Mo</td><td>Lent</td><td>Flou, bruit et JPEG en même temps.</td></tr>
+            <tr><td>Remacri</td><td>×4</td><td>68,3 Mo</td><td>Lent</td><td>Garde le grain et la matière (bois, tissu, peau, béton).</td></tr>
+            <tr><td>Swin2SR anti-JPEG</td><td>×4</td><td>52,5 Mo</td><td>Très lent</td><td>Images très compressées : captures, photos passées par une messagerie.</td></tr>
+            <tr><td colspan="5"><strong>Logos et illustrations</strong></td></tr>
+            <tr><td>Real-ESRGAN Aplats</td><td>×4</td><td>4,9 Mo</td><td>Très rapide</td><td>Logos et visuels en aplats : bords nets, couleurs plates.</td></tr>
+            <tr><td>APISR x4</td><td>×4</td><td>6,2 Mo</td><td>Rapide</td><td>Dessins très compressés : traits propres et réguliers.</td></tr>
+            <tr><td>APISR x2</td><td>×2</td><td>17,1 Mo</td><td>Rapide</td><td>Doubler un dessin, un sticker, un emoji.</td></tr>
+            <tr><td>AnimeSharp V3</td><td>×2</td><td>63,9 Mo</td><td>Lent</td><td>Lignes fines : BD, line art, icônes détaillées.</td></tr>
+            <tr><td colspan="5"><strong>Sans IA</strong></td></tr>
+            <tr><td>Bicubique</td><td>libre</td><td>—</td><td>Instantané</td><td>Pour comparer, ou garder l’image strictement d’origine.</td></tr>
+            <tr><td>Pixel art</td><td>libre</td><td>—</td><td>Instantané</td><td>Chaque pixel reste bien carré : pixel art, icônes rétro.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Le temps estimé devient orange quand il est long sur ton matériel. Commence par un modèle rapide pour juger, puis passe à un plus gros si le résultat le mérite.</p>
+      </section>
+
+      <section id="logos">
+        <h2><span class="n">04</span><span>Logos, aplats, pixel art</span></h2>
+        <p>L’IA agrandit une image : elle ne la vectorise pas. Pour un logo, le mieux reste le fichier vectoriel d’origine. Quand tu n’as qu’un fichier pixel :</p>
+        <ul>
+          <li><strong>Real-ESRGAN Aplats</strong> pour les logos en couleurs plates : bords nets, zéro bruit ;</li>
+          <li><strong>APISR</strong> ou <strong>AnimeSharp V3</strong> pour les dessins et les lignes fines ;</li>
+          <li><strong>Pixel art</strong> (sans IA) pour garder des pixels carrés ;</li>
+          <li>sur un logo transparent, laisse <strong>Transparence : Bords nets (IA)</strong> pour un détourage propre.</li>
+        </ul>
+        <div class="note warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><p>Vérifie toujours le résultat à 100 % ou 200 % avant de le livrer : l’IA peut arrondir un angle, épaissir un trait fin ou inventer un détail. Pour une livraison client, redessine le logo en vectoriel.</p></div>
+      </section>
+
+      <section id="agrandissement">
+        <h2><span class="n">05</span><span>Agrandissement</span></h2>
+        <p>Dans <strong>Réglages → Agrandissement</strong> : <strong>×2</strong>, <strong>×3</strong>, <strong>×4</strong> ou <strong>×8</strong>, ou <strong>une largeur précise</strong> en pixels (la hauteur suit, proportions gardées). Sous les boutons, l’app affiche la taille du résultat en pixels et en mégapixels, et le temps estimé.</p>
+        <ul>
+          <li>Un modèle ×4 qui doit atteindre ×8 fait <strong>deux passes</strong> ; un modèle ×2 en fait trois pour ×8. L’app le signale : compte nettement plus de temps.</li>
+          <li>Pour ×3 ou une largeur précise, l’app agrandit avec le modèle puis réduit proprement à la taille demandée.</li>
+          <li>Au-delà de <strong>16 384 px de côté</strong> ou du maximum de mégapixels de ton appareil, le bouton refuse et te demande un facteur plus petit (voir <a href="#faq">limites</a>).</li>
+        </ul>
+      </section>
+
+      <section id="avant-ia">
+        <h2><span class="n">06</span><span>Avant l’IA</span></h2>
+        <div class="tbl"><table>
+          <thead><tr><th>Réglage</th><th>Ce qu’il fait</th></tr></thead>
+          <tbody>
+            <tr><td>Pré-nettoyage (0–100)</td><td>Adoucit le bruit et les blocs JPEG avant l’agrandissement. Laisse à 0 sur une image propre.</td></tr>
+            <tr><td>Transparence : Bords nets (IA)</td><td>Le canal de transparence passe lui aussi dans le modèle : contours nets, mais deux fois plus de calcul.</td></tr>
+            <tr><td>Transparence : Rapide</td><td>La transparence est agrandie en bicubique : plus rapide, contours plus doux.</td></tr>
+          </tbody>
+        </table></div>
+        <p>L’option Transparence n’apparaît que si l’image contient de la transparence. Les couleurs sont prolongées sous les zones transparentes avant le calcul, ce qui évite les halos sur les bords.</p>
+      </section>
+
+      <section id="comparer">
+        <h2><span class="n">07</span><span>Comparer et zoomer</span></h2>
+        <ul>
+          <li><strong>Comparer</strong> (ou la touche <code>C</code>) affiche un curseur avant/après : glisse la poignée sur l’image.</li>
+          <li>Quand une image a plusieurs résultats, la liste <strong>avec</strong> permet de comparer au choix l’original ou un autre résultat. L’app garde les 4 derniers résultats par image (2 sur mobile).</li>
+          <li>Zoom : <strong>Ajuster</strong>, <strong>100 %</strong>, <strong>200 %</strong>, <strong>400 %</strong>, la molette, ou un double-clic (100 % ↔ ajusté). Glisse pour te déplacer.</li>
+        </ul>
+        <p>En haut à droite, l’app rappelle la taille d’origine et la taille du résultat (ex. <code>260 × 390 → 1 040 × 1 560</code>).</p>
+      </section>
+
+      <section id="retouche">
+        <h2><span class="n">08</span><span>Retouche en direct</span></h2>
+        <p>Après le calcul, trois curseurs agissent instantanément, sans relancer l’IA :</p>
+        <ul>
+          <li><strong>Force de l’IA</strong> : mélange le résultat avec un agrandissement bicubique. Baisse-la si le rendu fait trop « plastique ».</li>
+          <li><strong>Netteté</strong> : accentue les contours.</li>
+          <li><strong>Grain</strong> : ajoute un léger bruit pour un aspect photo.</li>
+        </ul>
+        <p>Ces réglages sont appliqués à l’export. Ils demandent WebGL 2 ; sur une très grande image (au-delà de 60 Mpx sur ordinateur, moins sur mobile), ils sont désactivés et l’export se fait sans retouche.</p>
+      </section>
+
+      <section id="exporter">
+        <h2><span class="n">09</span><span>Exporter</span></h2>
+        <div class="tbl"><table>
+          <thead><tr><th>Réglage</th><th>Valeurs</th></tr></thead>
+          <tbody>
+            <tr><td>Format</td><td>PNG (par défaut), JPEG, WebP</td></tr>
+            <tr><td>Qualité</td><td>50 à 100 % (92 par défaut), pour JPEG et WebP</td></tr>
+            <tr><td>Résolution</td><td>72, 150 ou 300 dpi (par défaut) ; l’app affiche la taille d’impression en cm</td></tr>
+            <tr><td>Nom du fichier</td><td>Par défaut <code>nom_x4_modèle</code>, ex. <code>photo-exemple_x4_clear</code></td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li><strong>Exporter</strong> (en haut) ou <strong>Exporter l’image</strong> (onglet Export) télécharge l’image sélectionnée.</li>
+          <li><strong>Tout exporter en ZIP</strong> regroupe toutes les images déjà agrandies dans <code>upscaler-binks.zip</code>.</li>
+          <li>La résolution est inscrite dans les fichiers PNG et JPEG (elle ne change pas le nombre de pixels).</li>
+          <li>En JPEG, les zones transparentes deviennent blanches.</li>
+        </ul>
+      </section>
+
+      <section id="lot">
+        <h2><span class="n">10</span><span>Traiter un lot</span></h2>
+        <p>Importe plusieurs images, choisis un modèle et un facteur, puis clique <strong>Tout agrandir</strong> : chaque image est traitée à la suite avec les mêmes réglages. Celles déjà agrandies avec ce modèle et ce facteur sont sautées. Termine par <strong>Tout exporter en ZIP</strong>.</p>
+        <p>Pour un gros lot, préfère un modèle rapide (ClearReality, Real-ESRGAN General, Real-ESRGAN Aplats).</p>
+      </section>
+
+      <section id="moteur">
+        <h2><span class="n">11</span><span>Moteur et matériel</span></h2>
+        <p>Le calcul utilise ONNX Runtime Web, chargé depuis un CDN, dans un Web Worker : l’interface reste fluide. <strong>Réglages → Moteur</strong> montre ce que l’app a détecté (carte graphique, cœurs du processeur, mémoire) et le résultat du mini-test.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Réglage</th><th>Valeurs</th></tr></thead>
+          <tbody>
+            <tr><td>Moteur</td><td><strong>Auto</strong> (carte graphique sauf si le mini-test la trouve plus lente que le processeur), <strong>Carte graphique</strong> (WebGPU), <strong>Processeur</strong> (WebAssembly)</td></tr>
+            <tr><td>Taille des tuiles</td><td><strong>Auto</strong> (calculée pour ton matériel), 64, 128, 256, 384 px. RealPLKSR et Real-ESRGAN General imposent la leur.</td></tr>
+            <tr><td>Mini-test</td><td>Lancé une fois au démarrage avec ClearReality (1,7 Mo) ; bouton <strong>Refaire le test</strong>.</td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li>Si la carte graphique cale pendant le calcul, l’app continue sur le processeur et te le signale.</li>
+          <li>Si l’onglet plante pendant un calcul, au rechargement l’app passe en mode prudent : processeur si la carte graphique était en cause, sinon tuiles de 64 px.</li>
+          <li>Ouvert en local (<code>file://</code>), un seul cœur du processeur est utilisé.</li>
+        </ul>
+      </section>
+
+      <section id="mobile">
+        <h2><span class="n">12</span><span>Sur téléphone et tablette</span></h2>
+        <p>Sous 900 px de large, l’app prend une mise en page « appli » : aperçu en haut, barre d’onglets <strong>Images</strong>, <strong>Modèle</strong>, <strong>Réglages</strong>, <strong>Export</strong>, feuilles à glisser.</p>
+        <ul>
+          <li>Les modèles <strong>Léger</strong> (quelques Mo, calcul en secondes) sont signalés ; avant un gros modèle ou un long calcul, l’app propose une alternative légère.</li>
+          <li>Pince pour zoomer, glisse la séparation avant/après, double-tap pour zoomer.</li>
+          <li>À l’export, la feuille de partage permet d’enregistrer dans Photos ou Fichiers.</li>
+          <li>Garde Upscaler à l’écran pendant le calcul : en arrière-plan, le navigateur le met en pause.</li>
+        </ul>
+        <p>Sur ajout à l’écran d’accueil, l’app s’ouvre comme une application.</p>
+      </section>
+
+      <section id="raccourcis">
+        <h2><span class="n">13</span><span>Raccourcis clavier</span></h2>
+        <div class="tbl"><table>
+          <thead><tr><th>Touche</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>Ctrl</code>/<code>Cmd</code> + <code>Entrée</code></td><td>Agrandir l’image sélectionnée</td></tr>
+            <tr><td><code>0</code></td><td>Ajuster à l’écran</td></tr>
+            <tr><td><code>1</code> · <code>2</code> · <code>4</code></td><td>Zoom 100 % · 200 % · 400 %</td></tr>
+            <tr><td><code>C</code></td><td>Activer / désactiver la comparaison</td></tr>
+            <tr><td><code>Ctrl</code>/<code>Cmd</code> + <code>V</code></td><td>Coller une image</td></tr>
+            <tr><td><code>Échap</code></td><td>Fermer un dialogue ou une feuille (mobile)</td></tr>
+          </tbody>
+        </table></div>
+        <p>Les raccourcis ne réagissent pas quand tu écris dans un champ.</p>
+      </section>
+
+      <section id="sauvegarde">
+        <h2><span class="n">14</span><span>Ce qui est mémorisé</span></h2>
+        <p>Dans le stockage local de ton navigateur :</p>
+        <ul>
+          <li><strong>tes réglages</strong> : modèle, facteur, largeur précise, pré-nettoyage, transparence, force de l’IA, netteté, grain, moteur, tuiles, format, qualité, dpi, comparaison ;</li>
+          <li>le profil de ton matériel (mini-test) et les vitesses mesurées ;</li>
+          <li>les <strong>modèles téléchargés</strong>, dans le cache du navigateur. Le bouton <strong>Vider les modèles téléchargés</strong> les supprime.</li>
+        </ul>
+        <div class="note warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><p>Les <strong>images et les résultats ne sont pas conservés</strong> : un rechargement de la page les efface. Exporte avant de fermer l’onglet.</p></div>
+      </section>
+
+      <section id="licences">
+        <h2><span class="n">15</span><span>Licences des modèles</span></h2>
+        <p>Les modèles sont l’œuvre de leurs auteurs et sont téléchargés depuis Hugging Face. Leur licence est affichée sur chaque carte.</p>
+        <ul>
+          <li><strong>Usage commercial possible</strong> selon leur licence : Real-ESRGAN General, x4plus et Aplats (BSD-3), ClearReality et Soft, Swin2SR (Apache 2.0), RealPLKSR (MIT), Nomos2 (CC BY 4.0), APISR (GPL-3.0).</li>
+          <li><strong>Non commercial</strong> (CC BY-NC-SA, marqué « Non commercial » dans l’app) : UltraSharp V2 Lite, UltraSharp, UltraSharp V2 Max, Remacri, AnimeSharp V3.</li>
+        </ul>
+        <p>Pour un travail client payé, prends un modèle dont la licence le permet, et lis la licence du modèle en cas de doute.</p>
+      </section>
+
+      <section id="faq">
+        <h2><span class="n">16</span><span>FAQ et limites</span></h2>
+        <h3>Mes images sont-elles envoyées quelque part ?</h3>
+        <p>Non. Le calcul se fait dans ton navigateur. Seuls le moteur (depuis un CDN) et les modèles (depuis Hugging Face) sont téléchargés vers toi ; les polices de l’app viennent de Google Fonts et Fontshare.</p>
+        <h3>Ça marche hors ligne ?</h3>
+        <p>Pas complètement : le moteur d’IA se charge en ligne. S’il ne se charge pas (connexion, bloqueur de publicités), seuls <strong>Bicubique</strong> et <strong>Pixel art</strong> fonctionnent ; recharge la page.</p>
+        <h3>Quelle taille maximale ?</h3>
+        <p>16 384 px de côté. En mégapixels, selon la mémoire de ton appareil : 24 Mpx jusqu’à 2 Go, 48 jusqu’à 4 Go, 80 au-delà (64 si la mémoire est inconnue) ; 16 Mpx sur iPhone et iPad, 16 ou 24 sur Android. Bicubique et Pixel art vont jusqu’à 200 Mpx sur ordinateur. Sur iPhone, une image de plus de ~16 Mpx est réduite à l’import.</p>
+        <h3>C’est très lent</h3>
+        <p>Vérifie le moteur dans Réglages (carte graphique ou processeur), prends un modèle marqué Très rapide ou un facteur plus petit. Les gros modèles peuvent prendre plusieurs minutes, surtout sur processeur.</p>
+        <h3>« Plus assez de mémoire » ou l’onglet a planté</h3>
+        <p>Réduis l’agrandissement ou la taille des tuiles. Après un plantage, l’app ajuste elle-même le moteur ou les tuiles au rechargement.</p>
+        <h3>« Téléchargement du modèle impossible »</h3>
+        <p>Vérifie ta connexion : le modèle vient de Hugging Face. Une fois téléchargé, il est gardé dans ton navigateur.</p>
+        <h3>L’IA a inventé des détails</h3>
+        <p>C’est le principe des modèles génératifs. Baisse la <strong>Force de l’IA</strong>, ou prends <strong>RealPLKSR Fidèle</strong>, fait pour ne rien inventer.</p>
+      </section>
+
+      <section id="agents">
+        <h2><span class="n">17</span><span>Agents IA</span></h2>
+        <p>Upscaler n’a pas d’API JavaScript publique : un agent (Claude Code, Codex…) le pilote par l’interface, avec les identifiants stables des commandes. Le mode d’emploi complet est sur la page <a href="agent/index.html">Agents IA</a> et dans <a href="AGENTS.md">AGENTS.md</a> (français puis anglais).</p>
+      </section>
+
+    </article>
+  </div>
+</main>
+<footer class="foot doc-foot">
+  <div class="in-w foot-in">
+    <span class="foot-l"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="13" width="8" height="8" rx="1" fill="#111"/><path d="M13 3h8v8M21 3l-8 8" stroke="#ff5500" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Upscaler · by binks design</span>
+    <ul class="foot-r">
+      <li><a href="docs.html">Documentation</a></li>
+      <li><a href="agent/index.html">Agents IA</a></li>
+      <li><a href="mailto:graphistedubinks@gmail.com">graphistedubinks@gmail.com</a></li>
+      <li><a class="pillk" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">Instagram @graphiste.binks</a></li>
+    </ul>
+    <small>Gratuit, sans compte, le calcul se fait dans ton navigateur. Modèles d’IA de leurs auteurs respectifs, licence affichée dans l’app. Polices de ces pages : Clash Display (<a href="assets/fonts/ClashDisplay-FFL.txt">licence FFL</a>) et Instrument Sans (<a href="assets/fonts/InstrumentSans-OFL.txt">licence OFL</a>).</small>
+  </div>
+</footer>
+</div>
+</body>
+</html>
