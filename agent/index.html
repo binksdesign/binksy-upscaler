@@ -70,7 +70,7 @@ await BinksyAPI.choisirModele({ id: &#x27;anime&#x27; });   // aplats, logos ; &
 await BinksyAPI.regler({ factor: 4 });             // ou { width: 3000 }
 const { result } = await BinksyAPI.agrandir({});   // { model, factor, width, height, seconds }</code></pre><h3>Exporter (rien n’est téléchargé sauf download: true)</h3><pre><code class="language-js">const { files } = await BinksyAPI.exporter({ format: &#x27;png&#x27;, dpi: 300 });   // scope: &#x27;all&#x27; = ZIP de toutes les images agrandies
 files[0].name;   // logo_x4_anime.png  (+ width, height, dataBase64)</code></pre>
-<p>Les modèles IA ont besoin du moteur ONNX Runtime Web (téléchargé au chargement) ; <code>bicubic</code> et <code>nearest</code> marchent sans lui. <code>agrandir</code> attend la fin du calcul (plusieurs minutes possibles). Les images ne sont pas gardées après rechargement : exporte avant.</p><p>Avec Playwright : <code>page.evaluate("BinksyAPI.describe()")</code>, ou <code>browser_evaluate</code> dans Playwright MCP (<code>npx @playwright/mcp@latest</code>). Les sélecteurs de l’interface restent valables.</p></section>
+<p>Les modèles IA ont besoin du moteur ONNX Runtime Web (téléchargé au chargement) ; <code>bicubic</code> et <code>nearest</code> marchent sans lui. <code>agrandir</code> attend la fin du calcul (plusieurs minutes possibles). Les images importées, l’image courante et le dernier résultat agrandi sont gardés dans le navigateur (IndexedDB) et reviennent au rechargement.</p><p>Avec Playwright : <code>page.evaluate("BinksyAPI.describe()")</code>, ou <code>browser_evaluate</code> dans Playwright MCP (<code>npx @playwright/mcp@latest</code>). Les sélecteurs de l’interface restent valables.</p></section>
 
 <section id="fr-regle-fondamentale" lang="fr"><h2><span class="n">01</span><span>Règle fondamentale</span></h2>
 <p>Upscaler <strong>agrandit</strong> les images que l’utilisateur fournit. Ce n’est pas un générateur d’images ni un outil de création de logo.</p>
@@ -406,9 +406,14 @@ files[0].name;   // logo_x4_anime.png  (+ width, height, dataBase64)</code></pre
 <td><code>binks-upscaler-models-v1</code></td>
 <td>fichiers <code>.onnx</code> téléchargés (<code>#clearCache</code> les supprime)</td>
 </tr>
+<tr>
+<td>IndexedDB</td>
+<td><code>binks-upscaler-files</code></td>
+<td>stores <code>items</code> (fichier importé d’origine, nom, comparaison), <code>results</code> (PNG du dernier résultat agrandi + métadonnées), <code>meta</code> (image courante, compteur d’id)</td>
+</tr>
 </tbody>
 </table></div>
-<p><strong>Les images et les résultats ne sont pas sauvegardés</strong> : un rechargement les efface. Exporte avant de recharger ou de fermer.</p>
+<p><strong>Les images importées sont sauvegardées automatiquement</strong> dans le navigateur (IndexedDB <code>binks-upscaler-files</code>, rien n’est envoyé) avec l’image courante et le dernier résultat agrandi de chaque image (jusqu’à 64 Mpx ; 24 Mpx sur mobile, 12 sur iPhone) : tout revient au rechargement. Retirer une image ou « Tout retirer » (<code>upscaler_reset</code>) l’efface aussi de la sauvegarde. Si le stockage du navigateur est plein, l’image reste ouverte mais n’est pas gardée (un message le dit) : exporte-la.</p>
 </section>
 <section id="fr-lobjet-interne-window-up" lang="fr"><h2><span class="n">06</span><span>L’objet interne <code>window.UP</code></span></h2>
 <p>L’app expose, tel quel, un objet interne utile pour <strong>lire</strong> l’état. Ce n’est pas l’API publique (c’est <code>window.BinksyAPI</code>, § 0) : pas de garantie de stabilité, et modifier ses valeurs directement ne met pas l’interface à jour ni n’enregistre les réglages.</p>
@@ -829,9 +834,14 @@ const { tools } = await BinksyAPI.describe();</code></pre></section>
 <td><code>binks-upscaler-models-v1</code></td>
 <td>downloaded <code>.onnx</code> files (<code>#clearCache</code> deletes them)</td>
 </tr>
+<tr>
+<td>IndexedDB</td>
+<td><code>binks-upscaler-files</code></td>
+<td>stores <code>items</code> (original imported file, name, comparison), <code>results</code> (PNG of the latest upscaled result + metadata), <code>meta</code> (current image, id counter)</td>
+</tr>
 </tbody>
 </table></div>
-<p><strong>Images and results are not saved</strong>: a reload clears them. Export before reloading or closing.</p>
+<p><strong>Imported images are saved automatically</strong> in the browser (IndexedDB <code>binks-upscaler-files</code>, nothing is uploaded) together with the current image and each image’s latest upscaled result (up to 64 MP; 24 MP on mobile, 12 on iPhone): everything comes back after a reload. Removing an image or “Remove all” (<code>upscaler_reset</code>) also deletes it from storage. If browser storage is full, the image stays open but is not kept (a message says so): export it.</p>
 </section>
 <section id="en-the-internal-window-up-object" lang="en"><h2><span class="n">06</span><span>The internal <code>window.UP</code> object</span></h2>
 <p>The app exposes, as is, an internal object that is handy to <strong>read</strong> state. It is not the public API (that is <code>window.BinksyAPI</code>, § 0): no stability guarantee, and changing its values directly neither updates the UI nor saves settings.</p>

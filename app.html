@@ -1317,23 +1317,118 @@ const save = () => localStorage.setItem(LS, JSON.stringify(S));
 const items = []; let cur = null; let busy = null; let cachedIds = new Set(); let uid = 0;
 const view = { zoom: 1, cx: 0, cy: 0, split: .5, fit: true };
 
+
+// ─────────── Sauvegarde automatique des images (IndexedDB, base propre à l'app, rien n'est envoyé) ───────────
+// items : { id, name, blob (fichier d'origine), ref } · results : { id, blob (PNG du dernier résultat), meta } · meta : { k: 'sel' | 'uid', v }
+const Store = (() => {
+  const DB = 'binks-upscaler-files', VER = 1;
+  let dbp = null, warned = false, restoring = false;
+  const RES_MAXPX = () => DEV.ios ? 12e6 : DEV.mobile ? 24e6 : 64e6; // au-delà, le résultat n'est pas gardé (encodage trop lourd)
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      if (!window.indexedDB) return rej(new Error('IndexedDB indisponible'));
+      const r = indexedDB.open(DB, VER);
+      r.onupgradeneeded = () => { const d = r.result; for (const n of ['items', 'results']) if (!d.objectStoreNames.contains(n)) d.createObjectStore(n, { keyPath: 'id' }); if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'k' }); };
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('IndexedDB bloquée'));
+    }).catch(e => { console.warn('[Upscaler] sauvegarde indisponible :', e); return null; });
+    return dbp;
+  }
+  async function tx(stores, mode, fn) {
+    const d = await open(); if (!d) return null;
+    return new Promise((res, rej) => {
+      let out; const t = d.transaction(stores, mode);
+      t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('Transaction annulée'));
+      out = fn(...stores.map(n => t.objectStore(n)));
+    });
+  }
+  const isQuota = e => e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || /quota/i.test(e.message || ''));
+  function fail(e, what) {
+    if (isQuota(e)) { if (!warned) { warned = true; toast(`Stockage du navigateur plein : impossible de garder ${what} pour le prochain rechargement. Retire des images ou exporte-les.`, 7000); } }
+    else console.warn('[Upscaler] sauvegarde :', e);
+    return false;
+  }
+  const getAll = st => new Promise((res, rej) => { const r = st.getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  const api = {
+    get restoring() { return restoring; },
+    async putItem(it) {
+      if (!it.blob) return false;
+      try { await tx(['items', 'meta'], 'readwrite', (st, m) => { st.put({ id: it.id, name: it.name, blob: it.blob, ref: it.ref || 'orig' }); m.put({ k: 'uid', v: uid }); }); return true; }
+      catch (e) { return fail(e, `l'image « ${it.name} »`); }
+    },
+    async putRef(it) { try { await tx(['items'], 'readwrite', st => { const r = st.get(it.id); r.onsuccess = () => { if (r.result) { r.result.ref = it.ref; st.put(r.result); } }; }); } catch (e) { fail(e, 'la comparaison'); } },
+    async putResult(it) {
+      const r = it.res; if (!r || !r.cv || r.W * r.H > RES_MAXPX()) { if (r) api.delResult(it.id); return false; }
+      let blob; try { blob = await new Promise(ok => r.cv.toBlob(ok, 'image/png')); } catch (e) { blob = null; }
+      if (!blob || it.res !== r || !items.includes(it)) return false;
+      try { await tx(['results'], 'readwrite', st => st.put({ id: it.id, blob, meta: { key: r.key, model: r.model, name: r.name, F: r.F, W: r.W, H: r.H, secs: r.secs } })); return true; }
+      catch (e) { return fail(e, `le résultat de « ${it.name} »`); }
+    },
+    async delResult(id) { try { await tx(['results'], 'readwrite', st => st.delete(id)); } catch (e) { fail(e); } },
+    async del(id) { try { await tx(['items', 'results'], 'readwrite', (a, b) => { a.delete(id); b.delete(id); }); } catch (e) { fail(e); } },
+    async clear() { try { await tx(['items', 'results', 'meta'], 'readwrite', (a, b, c) => { a.clear(); b.clear(); c.clear(); }); } catch (e) { fail(e); } },
+    async sel(id) { if (restoring) return; try { await tx(['meta'], 'readwrite', m => m.put({ k: 'sel', v: id })); } catch (e) { fail(e); } },
+    // au démarrage : remet les images, leurs résultats et l'image courante comme avant le rechargement
+    async restore() {
+      restoring = true;
+      try {
+        const data = await tx(['items', 'results', 'meta'], 'readonly', (a, b, c) => Promise.all([getAll(a), getAll(b), getAll(c)]));
+        if (!data) return 0;
+        const [recs, ress, metas] = await data; const meta = Object.fromEntries(metas.map(x => [x.k, x.v]));
+        const resById = new Map(ress.map(r => [r.id, r]));
+        recs.sort((a, b) => a.id - b.id);
+        uid = Math.max(uid, meta.uid || 0, ...recs.map(r => r.id));
+        const restored = [];
+        for (const rec of recs) {
+          if (items.some(x => x.id === rec.id)) continue;
+          let bmp; try { bmp = await createImageBitmap(rec.blob); } catch (e) { console.warn('[Upscaler] image illisible au rechargement :', rec.name); api.del(rec.id); continue; }
+          const it = addItem(rec.name, bmp, { restore: true, blob: rec.blob, id: rec.id });
+          const rr = resById.get(rec.id);
+          if (rr && rr.blob) {
+            try {
+              const b2 = await createImageBitmap(rr.blob); const c = document.createElement('canvas'); c.width = b2.width; c.height = b2.height; c.getContext('2d').drawImage(b2, 0, 0); b2.close && b2.close();
+              const m = rr.meta, md = MODEL[m.model];
+              const base = md && md.local ? c : (Post.gl && m.W <= Post.max && m.H <= Post.max && m.W * m.H <= postMax() ? Px.resize(it.src, m.W, m.H, true) : null);
+              const res = { ...m, cv: c, base }; it.results = [res]; it.res = res;
+              if (rec.ref && rec.ref === res.key) it.ref = rec.ref;
+            } catch (e) { api.delResult(rec.id); }
+          }
+          restored.push(it);
+        }
+        items.sort((a, b) => a.id - b.id);
+        const s = restored.find(x => String(x.id) === String(meta.sel)) || (cur && items.includes(cur) ? cur : restored[restored.length - 1]);
+        if (s && !(cur && !restored.includes(cur))) select(s); else { renderQueue(); renderAll(); }
+        return restored.length;
+      } catch (e) { console.warn('[Upscaler] restauration impossible :', e); return 0; }
+      finally { restoring = false; }
+    },
+  };
+  return api;
+})();
+let restored = Promise.resolve(0);
+
 // ─────────── Images ───────────
 async function addFiles(files) {
   for (const f of files) {
     if (!f.type.startsWith('image/')) continue;
-    try { const bmp = await createImageBitmap(f); addItem(f.name.replace(/\.[^.]+$/, ''), bmp); }
+    try { const bmp = await createImageBitmap(f); addItem(f.name.replace(/\.[^.]+$/, ''), bmp, { blob: f }); }
     catch (e) { toast("Impossible de lire " + f.name); }
   }
 }
-function addItem(name, bmp) {
+function addItem(name, bmp, o = {}) {
   const cv = document.createElement('canvas'); cv.width = bmp.width; cv.height = bmp.height;
   const lim = DEV.ios ? 16e6 : 0; // iOS : au-delà de ~16,7 Mpx le canvas reste vide
-  if (lim && bmp.width * bmp.height > lim) { const k = Math.sqrt(lim / (bmp.width * bmp.height)); cv.width = Math.floor(bmp.width * k); cv.height = Math.floor(bmp.height * k); toast(`Image réduite à ${nfmt(cv.width)} × ${nfmt(cv.height)} px : c'est le maximum qu'un iPhone peut ouvrir ici.`, 6000); }
+  if (lim && bmp.width * bmp.height > lim) { const k = Math.sqrt(lim / (bmp.width * bmp.height)); cv.width = Math.floor(bmp.width * k); cv.height = Math.floor(bmp.height * k); if (!o.restore) toast(`Image réduite à ${nfmt(cv.width)} × ${nfmt(cv.height)} px : c'est le maximum qu'un iPhone peut ouvrir ici.`, 6000); }
   cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
   const th = document.createElement('canvas'); const k = 80 / Math.max(cv.width, cv.height); th.width = Math.max(1, cv.width * k); th.height = Math.max(1, cv.height * k);
   th.getContext('2d').drawImage(cv, 0, 0, th.width, th.height);
-  const it = { id: ++uid, name, src: cv, alpha: Px.hasAlpha(cv.getContext('2d').getImageData(0, 0, cv.width, cv.height)), w: cv.width, h: cv.height, thumb: th.toDataURL(), results: [], res: null, ref: 'orig' };
-  items.push(it); select(it); if (MOB.on && MOB.snap === 'full') { MOB.snap = 'mid'; placeSheet(); }
+  const it = { id: o.id || ++uid, name, src: cv, alpha: Px.hasAlpha(cv.getContext('2d').getImageData(0, 0, cv.width, cv.height)), w: cv.width, h: cv.height, thumb: th.toDataURL(), results: [], res: null, ref: 'orig', blob: o.blob || null };
+  items.push(it);
+  if (o.restore) return it;
+  select(it); if (MOB.on && MOB.snap === 'full') { MOB.snap = 'mid'; placeSheet(); }
+  // sauvegarde : le fichier d'origine tel quel, sinon (exemples) un PNG de l'image
+  if (it.blob) Store.putItem(it); else cv.toBlob(b => { if (b && items.includes(it)) { it.blob = b; Store.putItem(it); } }, 'image/png');
+  return it;
 }
 function loadDemo(kind) {
   const img = new Image();
@@ -1342,11 +1437,11 @@ function loadDemo(kind) {
   if (kind === 'logo' && S.model !== 'anime') { S.model = 'anime'; save(); renderModels(); toast('Modèle « Real-ESRGAN Aplats » choisi pour le logo'); }
 }
 function select(it) {
-  cur = it; view.fit = true; renderQueue(); setupPost(); renderAll();
+  cur = it; view.fit = true; renderQueue(); setupPost(); renderAll(); Store.sel(it ? it.id : null);
 }
 function removeItem(it) {
-  const i = items.indexOf(it); if (i < 0) return; items.splice(i, 1);
-  if (cur === it) { cur = items[Math.min(i, items.length - 1)] || null; setupPost(); }
+  const i = items.indexOf(it); if (i < 0) return; items.splice(i, 1); Store.del(it.id);
+  if (cur === it) { cur = items[Math.min(i, items.length - 1)] || null; setupPost(); Store.sel(cur ? cur.id : null); }
   renderQueue(); renderAll();
 }
 function renderQueue() {
@@ -1519,6 +1614,7 @@ async function run(it, opts = {}) {
     while (it.results.length > (DEV.mobile ? 2 : 4)) { const old = it.results.shift(); if (Post.owner === old) Post.owner = null; for (const c of [old.cv, old.base]) if (c && c !== it.src) { c.width = c.height = 0; } }
     if (it.ref !== 'orig' && !it.results.find(r => r.key === it.ref)) it.ref = 'orig';
     if (!opts.batch || it === cur) { if (it === cur) { view.fit = true; setupPost(); } }
+    Store.putResult(it);
     if (!opts.batch) toast(`Terminé en ${fmtT(res.secs)} · ${nfmt(t.W)} × ${nfmt(t.H)} px` + (Engine.backend === 'wasm' && !m.local && Engine.gpuOk && S.ep !== 'wasm' ? ' (processeur)' : ''));
   } catch (e) {
     try { localStorage.removeItem('binks-upscaler-running'); } catch (x) {}
@@ -1737,7 +1833,7 @@ function bind() {
   ['dragleave', 'drop'].forEach(t => document.addEventListener(t, e => { e.preventDefault(); if (t === 'drop' || !e.relatedTarget) drop.classList.remove('over'); }));
   document.addEventListener('drop', e => { if (e.dataTransfer && e.dataTransfer.files.length) addFiles([...e.dataTransfer.files]); });
   document.addEventListener('paste', e => { const f = [...(e.clipboardData || {}).files || []]; if (f.length) addFiles(f.map((x, i) => x.name ? x : new File([x], 'collage-' + (i + 1) + '.png', { type: x.type }))); });
-  $('#clearAll').onclick = () => { if (busy) return; items.length = 0; cur = null; renderQueue(); renderAll(); };
+  $('#clearAll').onclick = () => { if (busy) return; items.length = 0; cur = null; Store.clear(); renderQueue(); renderAll(); };
   $('#runBtn').onclick = () => run(cur).catch(() => {});
   $('#runAll').onclick = runAll;
   $('#pgCancel').onclick = () => busy && busy.ac.abort();
@@ -1746,7 +1842,7 @@ function bind() {
   $('#exportZip').onclick = $('#zipAll').onclick = exportZip;
   $('#clearCache').onclick = async () => { await Engine.clearCache(); cachedIds = new Set(); renderModels(); toast('Modèles supprimés de ton ordi'); };
   $('#compareBtn').onclick = () => { S.compare = !S.compare; save(); renderAll(); };
-  $('#refSel').onchange = e => { if (cur) { cur.ref = e.target.value; redraw(); } };
+  $('#refSel').onchange = e => { if (cur) { cur.ref = e.target.value; Store.putRef(cur); redraw(); } };
   $$('[data-z]').forEach(b => b.onclick = () => setZoom(b.dataset.z === 'fit' ? 'fit' : +b.dataset.z));
   $$('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
   $('#customW').oninput = e => { S.customW = Math.max(0, Math.min(32000, +e.target.value || 0)); save(); renderSettings(); };
@@ -2150,8 +2246,8 @@ const AGENT = (() => {
   }
   const TOOLS = [
     { name: 'upscaler_describe', method: 'describe', annotations: { readOnlyHint: true }, description: "Décrit Upscaler (agrandissement d'images par IA dans le navigateur, jusqu'à ×8) et liste ses outils avec leurs schémas JSON.", inputSchema: { type: 'object', properties: {} } },
-    { name: 'upscaler_get_state', method: 'getState', annotations: { readOnlyHint: true }, description: "État courant : images importées (id, taille, dernier résultat), image courante, réglages (modèle, facteur, retouches, export) et état du moteur IA. Aucune donnée binaire. Les images ne sont pas gardées après rechargement ; les réglages oui.", inputSchema: { type: 'object', properties: {} } },
-    { name: 'upscaler_importer', method: 'importer', description: "Importe les images de l'utilisateur (PNG, JPEG, WebP…), comme un glisser-déposer. La dernière devient l'image courante.", inputSchema: { type: 'object', properties: { files: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, type: { type: 'string', description: 'Type MIME, ex. image/png' }, dataBase64: { type: 'string' }, url: { type: 'string', description: 'URL data: uniquement' } }, required: ['name'] } } }, required: ['files'] } },
+    { name: 'upscaler_get_state', method: 'getState', annotations: { readOnlyHint: true }, description: "État courant : images importées (id, taille, dernier résultat), image courante, réglages (modèle, facteur, retouches, export) et état du moteur IA. Aucune donnée binaire. Les images importées, leur dernier résultat agrandi, l'image courante et les réglages sont gardés dans le navigateur (IndexedDB) et reviennent au rechargement.", inputSchema: { type: 'object', properties: {} } },
+    { name: 'upscaler_importer', method: 'importer', description: "Importe les images de l'utilisateur (PNG, JPEG, WebP…), comme un glisser-déposer. La dernière devient l'image courante. Les images sont sauvegardées dans le navigateur et reviennent au rechargement.", inputSchema: { type: 'object', properties: { files: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, type: { type: 'string', description: 'Type MIME, ex. image/png' }, dataBase64: { type: 'string' }, url: { type: 'string', description: 'URL data: uniquement' } }, required: ['name'] } } }, required: ['files'] } },
     { name: 'upscaler_lister_modeles', method: 'listerModeles', annotations: { readOnlyHint: true }, description: "Liste les 18 modèles (16 IA + bicubic + nearest) : id, nom, famille, facteur natif, poids, licence (commercial ou non), usage conseillé, déjà téléchargé ou non.", inputSchema: { type: 'object', properties: {} } },
     { name: 'upscaler_choisir_modele', method: 'choisirModele', description: "Choisit le modèle (comme un clic sur sa carte). Rapides : clear, clearsoft, general, anime (logos et aplats). Respecte les licences : 5 modèles sont non commerciaux.", inputSchema: { type: 'object', properties: { id: { type: 'string', enum: MODELS.map(m => m.id) } }, required: ['id'] } },
     { name: 'upscaler_regler', method: 'regler', description: "Règle l'agrandissement et l'export : factor (2, 3, 4, 8) ou width (largeur précise 16–32 000 px ; 0 = facteur), denoise, mix (force de l'IA), sharp, grain (0–100), alpha (ai, fast), ep (auto, webgpu, wasm), tile (0, 64, 128, 256, 384), fmt (png, jpeg, webp), qual (50–100), dpi (72, 150, 300).", inputSchema: { type: 'object', properties: { factor: { type: 'number', enum: [2, 3, 4, 8] }, width: { type: 'integer', minimum: 0, maximum: 32000 }, denoise: { type: 'number', minimum: 0, maximum: 100 }, mix: { type: 'number', minimum: 0, maximum: 100 }, sharp: { type: 'number', minimum: 0, maximum: 100 }, grain: { type: 'number', minimum: 0, maximum: 100 }, alpha: { type: 'string', enum: ['ai', 'fast'] }, ep: { type: 'string', enum: ['auto', 'webgpu', 'wasm'] }, tile: { type: 'integer', enum: [0, 64, 128, 256, 384] }, fmt: { type: 'string', enum: ['png', 'jpeg', 'webp'] }, qual: { type: 'number', minimum: 50, maximum: 100 }, dpi: { type: 'integer', enum: [72, 150, 300] } } } },
@@ -2159,11 +2255,11 @@ const AGENT = (() => {
     { name: 'upscaler_annuler_calcul', method: 'annulerCalcul', description: "Annule l'agrandissement en cours.", inputSchema: { type: 'object', properties: {} } },
     { name: 'upscaler_exporter', method: 'exporter', description: "Exporte sans téléchargement forcé le résultat agrandi (avec les retouches) en PNG, JPEG ou WebP, dpi inscrits : image courante, une image (id) ou toutes les images agrandies en ZIP (scope: all). Renvoie { files: [{ name, type, dataBase64 }] }.", inputSchema: { type: 'object', properties: { scope: { type: 'string', enum: ['one', 'all'], default: 'one' }, id: { type: 'string' }, format: { type: 'string', enum: ['png', 'jpeg', 'webp'] }, dpi: { type: 'integer', enum: [72, 150, 300] }, quality: { type: 'number', minimum: 50, maximum: 100 }, fileName: { type: 'string', description: 'Nom sans extension (scope one)' }, download: { type: 'boolean', default: false } } } },
     { name: 'upscaler_selectionner_image', method: 'selectionnerImage', description: "Rend une image importée courante (comme un clic dans la liste).", inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
-    { name: 'upscaler_retirer_image', method: 'retirerImage', description: 'Retire une image de la liste.', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
-    { name: 'upscaler_reset', method: 'reset', annotations: { destructiveHint: true }, description: "Retire toutes les images et leurs résultats (comme « Tout retirer »). Destructif : demande d'abord l'accord de l'utilisateur, puis appelle avec confirm: true.", inputSchema: { type: 'object', properties: { confirm: { type: 'boolean' } }, required: ['confirm'] } },
+    { name: 'upscaler_retirer_image', method: 'retirerImage', description: 'Retire une image de la liste (et de la sauvegarde du navigateur).', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
+    { name: 'upscaler_reset', method: 'reset', annotations: { destructiveHint: true }, description: "Retire toutes les images et leurs résultats, sauvegarde du navigateur comprise (comme « Tout retirer »). Destructif : demande d'abord l'accord de l'utilisateur, puis appelle avec confirm: true.", inputSchema: { type: 'object', properties: { confirm: { type: 'boolean' } }, required: ['confirm'] } },
   ];
   const methods = {
-    ready: async () => { await AGENT.until(() => window.UP, 30000); return { ready: !!window.UP, engine: engineState() }; },
+    ready: async () => { await AGENT.until(() => window.UP, 30000); await restored; return { ready: !!window.UP, engine: engineState() }; },
     async getState() { await methods.ready(); return { app: 'upscaler', items: items.map(itemSum), currentId: cur ? String(cur.id) : null, settings: settingsSum(), target: cur ? targetSize(cur) : null, busy: !!busy, engine: engineState(), outInfo: $('#outInfo').textContent || '' }; },
     async importer({ files: list } = {}) {
       await methods.ready(); if (!Array.isArray(list) || !list.length) throw AGENT.err('BAD_INPUT', 'files doit être une liste non vide');
@@ -2235,7 +2331,9 @@ const AGENT = (() => {
       else { S.tile = 64; save(); toast("Le dernier agrandissement a fait planter l'onglet (mémoire). J'ai réduit la taille des tuiles ; essaie aussi un facteur plus petit.", 9000); }
     }
   } catch (e) {}
-  window.UP = { items, run, S, Engine, Hw, select, get cur() { return cur; }, MOB, DEV, view, openSheet, closeSheet, applyMode, go, redraw, pickModel };
+  restored = Store.restore().then(n => { if (n && cur) { setupPost(); renderAll(); } return n; });
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist().catch(() => {}); } catch (e) {}
+  window.UP = { items, run, S, Engine, Hw, select, get cur() { return cur; }, MOB, DEV, view, openSheet, closeSheet, applyMode, go, redraw, pickModel, Store, restored };
   applyMode();
   Hw.load();
   try { await Engine.init(); }

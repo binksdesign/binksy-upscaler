@@ -51,7 +51,7 @@ const { files } = await BinksyAPI.exporter({ format: 'png', dpi: 300 });   // sc
 files[0].name;   // logo_x4_anime.png  (+ width, height, dataBase64)
 ```
 
-Les modèles IA ont besoin du moteur ONNX Runtime Web (téléchargé au chargement) ; `bicubic` et `nearest` marchent sans lui. `agrandir` attend la fin du calcul (plusieurs minutes possibles). Les images ne sont pas gardées après rechargement : exporte avant. Avec Playwright : `page.evaluate("BinksyAPI.describe()")`, ou `browser_evaluate` dans Playwright MCP (`npx @playwright/mcp@latest`). Les sélecteurs de l’interface (plus bas) restent valables.
+Les modèles IA ont besoin du moteur ONNX Runtime Web (téléchargé au chargement) ; `bicubic` et `nearest` marchent sans lui. `agrandir` attend la fin du calcul (plusieurs minutes possibles). Les images importées, l’image courante et le dernier résultat agrandi sont gardés dans le navigateur (IndexedDB) et reviennent au rechargement. Avec Playwright : `page.evaluate("BinksyAPI.describe()")`, ou `browser_evaluate` dans Playwright MCP (`npx @playwright/mcp@latest`). Les sélecteurs de l’interface (plus bas) restent valables.
 
 ---
 
@@ -185,8 +185,9 @@ Rapides pour tester ou traiter un lot : `clear`, `clearsoft`, `general`, `anime`
 | `localStorage` | `binks-upscaler-speed` | vitesses mesurées par modèle et moteur |
 | `localStorage` | `binks-upscaler-running` | repère posé pendant un calcul ; s’il reste au rechargement, l’app passe en mode prudent (processeur ou tuiles de 64 px) |
 | Cache Storage | `binks-upscaler-models-v1` | fichiers `.onnx` téléchargés (`#clearCache` les supprime) |
+| IndexedDB | `binks-upscaler-files` | stores `items` (fichier importé d’origine, nom, comparaison), `results` (PNG du dernier résultat agrandi + métadonnées), `meta` (image courante, compteur d’id) |
 
-**Les images et les résultats ne sont pas sauvegardés** : un rechargement les efface. Exporte avant de recharger ou de fermer.
+**Les images importées sont sauvegardées automatiquement** dans le navigateur (IndexedDB `binks-upscaler-files`, rien n’est envoyé) avec l’image courante et le dernier résultat agrandi de chaque image (jusqu’à 64 Mpx ; 24 Mpx sur mobile, 12 sur iPhone) : tout revient au rechargement. Retirer une image ou « Tout retirer » (`upscaler_reset`) l’efface aussi de la sauvegarde. Si le stockage du navigateur est plein, l’image reste ouverte mais n’est pas gardée (un message le dit) : exporte-la.
 
 ---
 
@@ -437,8 +438,9 @@ Fast ones for testing or batches: `clear`, `clearsoft`, `general`, `anime`.
 | `localStorage` | `binks-upscaler-speed` | measured speeds per model and engine |
 | `localStorage` | `binks-upscaler-running` | marker set during a run; if still present on reload, the app switches to a safe mode (CPU or 64 px tiles) |
 | Cache Storage | `binks-upscaler-models-v1` | downloaded `.onnx` files (`#clearCache` deletes them) |
+| IndexedDB | `binks-upscaler-files` | stores `items` (original imported file, name, comparison), `results` (PNG of the latest upscaled result + metadata), `meta` (current image, id counter) |
 
-**Images and results are not saved**: a reload clears them. Export before reloading or closing.
+**Imported images are saved automatically** in the browser (IndexedDB `binks-upscaler-files`, nothing is uploaded) together with the current image and each image’s latest upscaled result (up to 64 MP; 24 MP on mobile, 12 on iPhone): everything comes back after a reload. Removing an image or “Remove all” (`upscaler_reset`) also deletes it from storage. If browser storage is full, the image stays open but is not kept (a message says so): export it.
 
 ---
 
