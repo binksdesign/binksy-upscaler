@@ -13,12 +13,13 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Cg transform='translate(4 4)'%3E%3Crect x='3' y='13' width='8' height='8' rx='1' fill='%23f2f2f0'/%3E%3Cpath d='M13 3h8v8M21 3l-8 8' stroke='%23ff5500' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="alternate" type="text/markdown" href="AGENTS.md" title="Mode d’emploi pour agents IA (Markdown, FR puis EN)">
 <link rel="help" href="agent/" title="Agents IA">
+<link rel="help" href="mcp/" title="MCP / Agents IA">
 <link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
 <link rel="stylesheet" href="assets/site.css">
 <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('anim');</script>
 <script src="assets/site.js" defer></script>
 </head>
-<!-- Agents IA / AI agents : lisez AGENTS.md (Markdown, français puis anglais) ou agent/index.html avant d’agir. L’application est app.html ; pas d’API publique : pilotage par l’interface (identifiants HTML stables). Aucune clé API ; les images restent dans le navigateur. -->
+<!-- Agents IA / AI agents : lisez AGENTS.md (Markdown, français puis anglais) ou agent/index.html avant d’agir. L’application est app.html ; API publique window.BinksyAPI (await BinksyAPI.describe()) et outils WebMCP upscaler_* ; page mcp/ ; l’interface reste pilotable (identifiants HTML stables). Aucune clé API ; les images restent dans le navigateur. -->
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
 <noscript><p style="margin:0;padding:10px 18px;background:#ff5500;color:#0b0b0b;font:600 14px/1.4 sans-serif">Agents IA : le mode d’emploi complet est dans <a href="AGENTS.md">AGENTS.md</a> (page HTML : <a href="agent/index.html">agent/</a>). L’application (<a href="app.html">app.html</a>) a besoin de JavaScript.</p></noscript>
@@ -315,7 +316,7 @@
 
       <section id="agents">
         <h2><span class="n">17</span><span>Agents IA</span></h2>
-        <p>Upscaler n’a pas d’API JavaScript publique : un agent (Claude Code, Codex…) le pilote par l’interface, avec les identifiants stables des commandes. Le mode d’emploi complet est sur la page <a href="agent/index.html">Agents IA</a> et dans <a href="AGENTS.md">AGENTS.md</a> (français puis anglais).</p>
+        <p>Un agent (Claude Code, Codex, Hermes, OpenCode…) pilote Upscaler avec son API <code>window.BinksyAPI</code> ou ses outils WebMCP (voir la page <a href="mcp/">MCP / Agents IA</a>), ou par l’interface, avec les identifiants stables des commandes. Le mode d’emploi complet est sur la page <a href="agent/index.html">Agents IA</a> et dans <a href="AGENTS.md">AGENTS.md</a> (français puis anglais).</p>
       </section>
 
     </article>

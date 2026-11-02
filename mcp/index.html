@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MCP / Agents IA — Upscaler</title>
+<meta name="description" content="Brancher un agent IA (Claude Code, Codex, Hermes, OpenCode ou un agent intégré au navigateur) sur Upscaler : window.BinksyAPI, outils WebMCP, Playwright MCP. Rien n’est envoyé, aucun compte, aucune clé.">
+<meta name="theme-color" content="#111111">
+<meta name="author" content="Binks Design">
+<meta property="og:title" content="MCP / Agents IA — Upscaler">
+<meta property="og:description" content="Brancher un agent IA (Claude Code, Codex, Hermes, OpenCode ou un agent intégré au navigateur) sur Upscaler : window.BinksyAPI, outils WebMCP, Playwright MCP. Rien n’est envoyé, aucun compte, aucune clé.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Cg transform='translate(4 4)'%3E%3Crect x='3' y='13' width='8' height='8' rx='1' fill='%23f2f2f0'/%3E%3Cpath d='M13 3h8v8M21 3l-8 8' stroke='%23ff5500' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="alternate" type="text/markdown" href="../AGENTS.md" title="Mode d’emploi pour agents IA (Markdown, FR puis EN)">
+<link rel="help" href="../agent/" title="Agents IA">
+<link rel="help" href="../mcp/" title="MCP / Agents IA">
+<link rel="alternate" type="text/plain" href="../llms.txt" title="llms.txt">
+<link rel="stylesheet" href="../assets/site.css">
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('anim');</script>
+<script src="../assets/site.js" defer></script>
+</head>
+<!-- Agents IA / AI agents : cette page explique comment piloter Upscaler par window.BinksyAPI (await BinksyAPI.describe()) ou les outils WebMCP. Mode d’emploi complet : ../AGENTS.md. -->
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<noscript><p style="margin:0;padding:10px 18px;background:#ff5500;color:#0b0b0b;font:600 14px/1.4 sans-serif">Agents IA : le mode d’emploi complet est dans <a href="../AGENTS.md">AGENTS.md</a> (page HTML : <a href="../agent/index.html">agent/</a>). L’application (<a href="../app.html">app.html</a>) a besoin de JavaScript.</p></noscript>
+<header class="top">
+  <a class="brand" href="../index.html" aria-label="Upscaler — accueil"><span class="mk"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="13" width="8" height="8" rx="1" fill="#f2f2f0"/><path d="M13 3h8v8M21 3l-8 8" stroke="#ff5500" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Upscaler</b></a>
+  <a class="sig" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">by binks design</a>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="../index.html">Accueil</a>
+    <a href="../docs.html">Documentation</a>
+    <a href="../agent/index.html">Agents IA</a>
+    <a class="cta" href="../app.html">Ouvrir l’app</a>
+  </nav>
+</header>
+<div class="sheet"><main id="contenu">
+  <div class="doc-hero">
+    <div class="plane" aria-hidden="true"></div>
+    <div class="in-w">
+      <p class="kicker"><i aria-hidden="true"></i>Pour Claude Code, Codex, Hermes, OpenCode et les agents du navigateur</p>
+      <h1 class="doc-h1"><span class="mask"><span>MCP</span></span><span class="mask"><span style="--i:1">pour <em>agents IA</em></span></span></h1>
+      <p class="lead">Un agent peut piloter Upscaler sans cliquer : <code>window.BinksyAPI</code> dans la page, ou des outils WebMCP. Tout reste dans ton navigateur. Mode d’emploi complet : <a class="lnk" href="../AGENTS.md">AGENTS.md</a>.</p>
+      <div class="meta lang-switch">
+        <a class="tag" href="#fr-intro">Français</a>
+        <a class="tag" href="#en-intro" hreflang="en">English</a>
+        <a class="tag" href="../agent/index.html">Agents IA</a>
+        <a class="tag" href="../AGENTS.md" type="text/markdown">AGENTS.md</a>
+        <a class="tag" href="../llms.txt" type="text/plain">llms.txt</a>
+        <a class="tag" href="../app.html">Ouvrir l’app</a>
+      </div>
+    </div>
+  </div>
+  <div class="in-w doc-grid">
+    <details class="toc" open>
+      <summary><span>Sommaire</span><span class="cur"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <nav class="toc-body" aria-label="Sommaire"><span class="toc-h" lang="fr">Français</span><ol><li><a href="#fr-outils"><span class="n">01</span><span>Ce que l’agent peut faire</span></a></li><li><a href="#fr-webmcp"><span class="n">02</span><span>Connexion A — agent dans le navigateur (WebMCP)</span></a></li><li><a href="#fr-playwright"><span class="n">03</span><span>Connexion B — Claude Code, Codex, Hermes, OpenCode</span></a></li><li><a href="#fr-exemples"><span class="n">04</span><span>Exemples de code</span></a></li><li><a href="#fr-prompt"><span class="n">05</span><span>Prompt prêt à copier</span></a></li><li><a href="#fr-confidentialite"><span class="n">06</span><span>Rien n’est envoyé</span></a></li></ol><div style="height:18px"></div><span class="toc-h" lang="en">English</span><ol><li><a href="#en-tools"><span class="n">01</span><span>What the agent can do</span></a></li><li><a href="#en-connect"><span class="n">02</span><span>Connecting an agent</span></a></li><li><a href="#en-prompt"><span class="n">03</span><span>Ready-to-paste prompt</span></a></li></ol></nav>
+    </details>
+    <article class="prose">
+<section id="fr-intro" lang="fr"><p>Upscaler expose <strong>une seule table d’outils</strong>, utilisée de deux façons : l’objet <code>window.BinksyAPI</code> (toujours présent dans <code>app.html</code>) et, si le navigateur le permet, des <strong>outils WebMCP</strong> enregistrés automatiquement. Chaque outil appelle la même logique que l’interface : l’écran se met à jour et l’enregistrement automatique suit. Toutes les méthodes sont asynchrones, renvoient du JSON et, en cas d’erreur, rejettent avec <code>{ code, message }</code>.</p><p>Les modèles d’IA tournent dans le navigateur (ONNX Runtime Web) : prévois des délais longs sur processeur, et une connexion Internet pour télécharger le moteur et, au premier usage, chaque modèle. <code>bicubic</code> et <code>nearest</code> marchent sans moteur.</p></section>
+<section id="fr-outils" lang="fr"><h2><span class="n">01</span><span>Ce que l’agent peut faire</span></h2><p>12 outils, aussi listés par <code>await BinksyAPI.describe()</code> avec leurs schémas JSON :</p><ul><li><code>upscaler_describe</code> · <code>BinksyAPI.describe()</code> — Décrit Upscaler (agrandissement d&#x27;images par IA dans le navigateur, jusqu&#x27;à ×8) et liste ses outils avec leurs schémas JSON.</li>
+<li><code>upscaler_get_state</code> · <code>BinksyAPI.getState()</code> — État courant : images importées (id, taille, dernier résultat), image courante, réglages (modèle, facteur, retouches, export) et état du moteur IA.</li>
+<li><code>upscaler_importer</code> · <code>BinksyAPI.importer()</code> — Importe les images de l&#x27;utilisateur (PNG, JPEG, WebP…), comme un glisser-déposer.</li>
+<li><code>upscaler_lister_modeles</code> · <code>BinksyAPI.listerModeles()</code> — Liste les 18 modèles (16 IA + bicubic + nearest) : id, nom, famille, facteur natif, poids, licence (commercial ou non), usage conseillé, déjà téléchargé ou non.</li>
+<li><code>upscaler_choisir_modele</code> · <code>BinksyAPI.choisirModele()</code> — Choisit le modèle (comme un clic sur sa carte).</li>
+<li><code>upscaler_regler</code> · <code>BinksyAPI.regler()</code> — Règle l&#x27;agrandissement et l&#x27;export : factor (2, 3, 4, 8) ou width (largeur précise 16–32 000 px ; 0 = facteur), denoise, mix (force de l&#x27;IA), sharp, grain (0–100), alpha (ai, fast), ep (auto, webgpu, wasm), tile (0, 64, 128, 256, 384), fmt (png, jpeg, webp), qual (50–100), dpi (72, 150, 300).</li>
+<li><code>upscaler_agrandir</code> · <code>BinksyAPI.agrandir()</code> — Lance l&#x27;agrandissement avec le modèle et le facteur courants et attend la fin (plusieurs minutes possibles sur processeur ; le premier usage d&#x27;un modèle IA le télécharge).</li>
+<li><code>upscaler_annuler_calcul</code> · <code>BinksyAPI.annulerCalcul()</code> — Annule l&#x27;agrandissement en cours.</li>
+<li><code>upscaler_exporter</code> · <code>BinksyAPI.exporter()</code> — Exporte sans téléchargement forcé le résultat agrandi (avec les retouches) en PNG, JPEG ou WebP, dpi inscrits : image courante, une image (id) ou toutes les images agrandies en ZIP (scope: all).</li>
+<li><code>upscaler_selectionner_image</code> · <code>BinksyAPI.selectionnerImage()</code> — Rend une image importée courante (comme un clic dans la liste).</li>
+<li><code>upscaler_retirer_image</code> · <code>BinksyAPI.retirerImage()</code> — Retire une image de la liste.</li>
+<li><code>upscaler_reset</code> · <code>BinksyAPI.reset()</code> — Retire toutes les images et leurs résultats (comme « Tout retirer »).</li></ul></section>
+<section id="fr-webmcp" lang="fr"><h2><span class="n">02</span><span>Connexion A — agent dans le navigateur (WebMCP)</span></h2><p>WebMCP est une proposition du W3C encore expérimentale : un agent intégré au navigateur appelle directement les outils d’une page. Pour l’essayer aujourd’hui (les noms peuvent encore changer d’une version à l’autre) :</p><ol>
+<li>Utilise un Chrome récent (146 ou plus, souvent Canary ou Dev) et ouvre <code>chrome://flags/#enable-webmcp-testing</code>, passe le réglage <strong>WebMCP for testing</strong> sur <em>Enabled</em>, puis relance Chrome.</li>
+<li>Ouvre <a class="lnk" href="https://upscaler.binksdesign.com/app.html">https://upscaler.binksdesign.com/app.html</a> (ou <code>http://localhost…/app.html</code> en local : il faut HTTPS ou localhost).</li>
+<li>Les outils <code>upscaler_…</code> apparaissent tout seuls pour l’agent du navigateur. Pour les voir et les tester à la main, l’extension Chrome <strong>Model Context Tool Inspector</strong> (proposée par la doc Chrome) les liste et les exécute.</li></ol>
+<p>L’app gère <code>document.modelContext.registerTool()</code> (spécification actuelle) et les anciennes préversions (<code>navigator.modelContext</code>, <code>provideContext</code>). Sans WebMCP, rien ne s’affiche et rien ne casse : <code>window.BinksyAPI</code> reste disponible.</p></section>
+<section id="fr-playwright" lang="fr"><h2><span class="n">03</span><span>Connexion B — Claude Code, Codex, Hermes, OpenCode</span></h2><p>Ces agents pilotent un navigateur local par un serveur MCP standard. Le plus simple : <strong>Playwright MCP</strong>. Ajoute-le à la configuration MCP de ton agent (fichier <code>.mcp.json</code> de Claude Code, configuration MCP de Codex, Hermes ou OpenCode — même bloc, la syntaxe du fichier peut varier) :</p><pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;playwright&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;@playwright/mcp@latest&quot;]
+    }
+  }
+}</code></pre>
+<p>Puis demande à l’agent d’ouvrir l’app (<code>browser_navigate</code> vers <a class="lnk" href="https://upscaler.binksdesign.com/app.html">https://upscaler.binksdesign.com/app.html</a>) et d’appeler <code>window.BinksyAPI</code> avec l’outil d’évaluation de JavaScript (<code>browser_evaluate</code>), par exemple :</p><pre><code class="language-js">() =&gt; BinksyAPI.describe()</code></pre>
+<p>Pour un fichier de l’utilisateur, l’agent le lit sur le disque, l’encode en base64 et le passe à <code>BinksyAPI.importer({ files: [{ name, type, dataBase64 }] })</code>. Les fichiers exportés reviennent en base64 : l’agent les réécrit sur le disque. Respecte les licences : 5 modèles sont non commerciaux (champ commercialUse de listerModeles). N’agrandis que les images de l’utilisateur et ne présente jamais un agrandissement comme un vectoriel.</p></section>
+<section id="fr-exemples" lang="fr"><h2><span class="n">04</span><span>Exemples de code</span></h2><h3>Découvrir l’app et les modèles</h3><pre><code class="language-js">await BinksyAPI.ready();
+const info = await BinksyAPI.describe();
+const { models } = await BinksyAPI.listerModeles();   // id, licence, commercialUse, poids, usage conseillé
+const etat = await BinksyAPI.getState();             // images, réglages, moteur IA prêt ou non</code></pre><h3>Importer une image en base64 et agrandir</h3><pre><code class="language-js">await BinksyAPI.importer({ files: [{ name: &#x27;logo.png&#x27;, type: &#x27;image/png&#x27;, dataBase64: b64 }] });
+await BinksyAPI.choisirModele({ id: &#x27;anime&#x27; });   // aplats, logos ; &#x27;clear&#x27; pour une photo
+await BinksyAPI.regler({ factor: 4 });             // ou { width: 3000 }
+const { result } = await BinksyAPI.agrandir({});   // { model, factor, width, height, seconds }</code></pre><h3>Exporter (rien n’est téléchargé sauf download: true)</h3><pre><code class="language-js">const { files } = await BinksyAPI.exporter({ format: &#x27;png&#x27;, dpi: 300 });   // scope: &#x27;all&#x27; = ZIP de toutes les images agrandies
+files[0].name;   // logo_x4_anime.png  (+ width, height, dataBase64)</code></pre></section>
+<section id="fr-prompt" lang="fr"><h2><span class="n">05</span><span>Prompt prêt à copier</span></h2><p>À coller tel quel dans Claude Code, Codex, Hermes ou OpenCode (avec Playwright MCP branché) :</p><pre><code class="language-text">Ouvre https://upscaler.binksdesign.com/app.html avec le navigateur (Playwright MCP, fenêtre d’au moins 900 px de large), attends que la page soit chargée, puis utilise uniquement window.BinksyAPI via browser_evaluate. Commence par await BinksyAPI.describe(). Importe mon image ./logo.png (lis-la sur le disque, encode-la en base64, BinksyAPI.importer). Choisis un modèle utilisable commercialement adapté (listerModeles, champ commercialUse), agrandis ×4 (BinksyAPI.agrandir, ça peut prendre plusieurs minutes), puis exporte en PNG 300 dpi (BinksyAPI.exporter), décode le base64 et enregistre le fichier à côté de l’original. Donne-moi la taille finale telle que l’API la renvoie. N’invente ni ne redessine rien.</code></pre></section>
+<section id="fr-confidentialite" lang="fr"><h2><span class="n">06</span><span>Rien n’est envoyé</span></h2><ul><li>Tes images ne sont jamais envoyées : le calcul se fait dans le navigateur. Seuls le moteur ONNX Runtime Web (jsDelivr) et les modèles (Hugging Face) sont téléchargés, comme dans l’interface ; l’API n’ajoute aucune requête. Les réglages sont gardés dans le navigateur ; les images et les résultats ne le sont pas (exporte avant de recharger).</li><li>Pas de compte, pas de clé API : l’API ne lit ni n’écrit aucune clé.</li><li>L’API manipule seulement ce que l’utilisateur fournit : elle n’invente ni logo, ni couleur, ni nom de client.</li><li>Mode d’emploi complet pour agents : <a class="lnk" href="../AGENTS.md">AGENTS.md</a> · <a class="lnk" href="../agent/index.html">page Agents IA</a> · <a class="lnk" href="../llms.txt">llms.txt</a>.</li></ul></section>
+<section id="en-intro" lang="en"><p><strong>English, short version.</strong> Upscaler exposes one tool table two ways: the always-present <code>window.BinksyAPI</code> object in <code>app.html</code> and, when the browser supports it, auto-registered <strong>WebMCP tools</strong>. Every call runs the same logic as the UI (screen and auto-save follow), returns JSON and rejects with <code>{ code, message }</code>.</p></section>
+<section id="en-tools" lang="en"><h2><span class="n">01</span><span>What the agent can do</span></h2><p>12 tools (see the table above or <code>await BinksyAPI.describe()</code> for the JSON schemas): <code>upscaler_describe</code>, <code>upscaler_get_state</code>, <code>upscaler_importer</code>, <code>upscaler_lister_modeles</code>, <code>upscaler_choisir_modele</code>, <code>upscaler_regler</code>, <code>upscaler_agrandir</code>, <code>upscaler_annuler_calcul</code>, <code>upscaler_exporter</code>, <code>upscaler_selectionner_image</code>, <code>upscaler_retirer_image</code>, <code>upscaler_reset</code>.</p></section>
+<section id="en-connect" lang="en"><h2><span class="n">02</span><span>Connecting an agent</span></h2><ul><li><strong>WebMCP (browser agent)</strong>: recent Chrome (146+), enable <code>chrome://flags/#enable-webmcp-testing</code>, relaunch, open <a class="lnk" href="https://upscaler.binksdesign.com/app.html">https://upscaler.binksdesign.com/app.html</a>; the <code>upscaler_…</code> tools show up automatically (inspect them with the Model Context Tool Inspector extension). Experimental: names may change.</li><li><strong>Claude Code, Codex, Hermes, OpenCode</strong>: add Playwright MCP (<code>npx @playwright/mcp@latest</code>, config block above), open the app URL, then call <code>window.BinksyAPI</code> through <code>browser_evaluate</code>. Files go in and out as base64.</li><li>Images are never uploaded: processing happens in the browser. Only the ONNX Runtime Web engine (jsDelivr) and the models (Hugging Face) are downloaded, as in the UI; the API adds no request. Settings are kept in the browser; images and results are not. No account, no API key.</li></ul></section>
+<section id="en-prompt" lang="en"><h2><span class="n">03</span><span>Ready-to-paste prompt</span></h2><pre><code class="language-text">Open https://upscaler.binksdesign.com/app.html in the browser (Playwright MCP, window at least 900 px wide), wait for the page to load, then use only window.BinksyAPI through browser_evaluate. Start with await BinksyAPI.describe(). Import my image ./logo.png (read it from disk, base64-encode it, BinksyAPI.importer). Pick a suitable commercially usable model (listerModeles, commercialUse field), upscale ×4 (BinksyAPI.agrandir, may take minutes), export as 300 dpi PNG (BinksyAPI.exporter), decode the base64 and save the file next to the original. Report the final size exactly as the API returns it. Do not invent or redraw anything.</code></pre></section>
+    </article>
+  </div>
+</main>
+<footer class="foot doc-foot">
+  <div class="in-w foot-in">
+    <span class="foot-l"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="13" width="8" height="8" rx="1" fill="#111"/><path d="M13 3h8v8M21 3l-8 8" stroke="#ff5500" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Upscaler · by binks design</span>
+    <ul class="foot-r">
+      <li><a href="../docs.html">Documentation</a></li>
+      <li><a href="../agent/index.html">Agents IA</a></li>
+      <li><a href="../mcp/">MCP / Agents IA</a></li>
+      <li><a href="mailto:graphistedubinks@gmail.com">graphistedubinks@gmail.com</a></li>
+      <li><a class="pillk" href="https://www.instagram.com/graphiste.binks/" target="_blank" rel="noopener">Instagram @graphiste.binks</a></li>
+    </ul>
+    <small>Gratuit, sans compte, le calcul se fait dans ton navigateur. Modèles d’IA de leurs auteurs respectifs, licence affichée dans l’app. Polices de ces pages : Clash Display (<a href="../assets/fonts/ClashDisplay-FFL.txt">licence FFL</a>) et Instrument Sans (<a href="../assets/fonts/InstrumentSans-OFL.txt">licence OFL</a>).</small>
+  </div>
+</footer>
+</div>
+</body>
+</html>

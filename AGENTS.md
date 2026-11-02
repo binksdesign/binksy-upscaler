@@ -8,6 +8,53 @@ Points d’entrée découvrables sans JavaScript : `index.html` et `docs.html` d
 
 ---
 
+## 0. API pour agents : `window.BinksyAPI`, WebMCP et page MCP
+
+L’app expose une **API JavaScript publique et versionnée** (`apiVersion: "1"`) : `window.BinksyAPI`, présente dans `app.html` dès le chargement. C’est la façon la plus fiable de piloter l’app : chaque méthode appelle la même logique que l’interface (l’écran se met à jour, l’enregistrement automatique suit), toutes sont asynchrones, renvoient du JSON (pas de nœuds DOM ni de données binaires lourdes, sauf les fichiers exportés en base64) et rejettent avec `{ code, message }` en cas d’erreur. Les **mêmes outils** sont enregistrés en **WebMCP** quand le navigateur le permet (`document.modelContext.registerTool()`, ou `navigator.modelContext` sur les anciennes préversions) ; sans WebMCP, rien ne change. Page dédiée : [`mcp/`](mcp/) (agent dans le navigateur, Claude Code / Codex / Hermes / OpenCode via Playwright MCP, prompt prêt à copier).
+
+| Outil WebMCP | Méthode `BinksyAPI` | Rôle |
+| --- | --- | --- |
+| `upscaler_describe` | `describe()` | Décrit Upscaler (agrandissement d'images par IA dans le navigateur, jusqu'à ×8) et liste ses outils avec leurs schémas JSON. |
+| `upscaler_get_state` | `getState()` | État courant : images importées (id, taille, dernier résultat), image courante, réglages (modèle, facteur, retouches, export) et état du moteur IA. |
+| `upscaler_importer` | `importer()` | Importe les images de l'utilisateur (PNG, JPEG, WebP…), comme un glisser-déposer. |
+| `upscaler_lister_modeles` | `listerModeles()` | Liste les 18 modèles (16 IA + bicubic + nearest) : id, nom, famille, facteur natif, poids, licence (commercial ou non), usage conseillé, déjà téléchargé ou non. |
+| `upscaler_choisir_modele` | `choisirModele()` | Choisit le modèle (comme un clic sur sa carte). |
+| `upscaler_regler` | `regler()` | Règle l'agrandissement et l'export : factor (2, 3, 4, 8) ou width (largeur précise 16–32 000 px ; 0 = facteur), denoise, mix (force de l'IA), sharp, grain (0–100), alpha (ai, fast), ep (auto, webgpu, wasm), tile (0, 64, 128, 256, 384), fmt (png, jpeg, webp), qual (50–100), dpi (72, 150, 300). |
+| `upscaler_agrandir` | `agrandir()` | Lance l'agrandissement avec le modèle et le facteur courants et attend la fin (plusieurs minutes possibles sur processeur ; le premier usage d'un modèle IA le télécharge). |
+| `upscaler_annuler_calcul` | `annulerCalcul()` | Annule l'agrandissement en cours. |
+| `upscaler_exporter` | `exporter()` | Exporte sans téléchargement forcé le résultat agrandi (avec les retouches) en PNG, JPEG ou WebP, dpi inscrits : image courante, une image (id) ou toutes les images agrandies en ZIP (scope: all). |
+| `upscaler_selectionner_image` | `selectionnerImage()` | Rend une image importée courante (comme un clic dans la liste). |
+| `upscaler_retirer_image` | `retirerImage()` | Retire une image de la liste. |
+| `upscaler_reset` | `reset()` | Retire toutes les images et leurs résultats (comme « Tout retirer »). |
+
+Fichiers en entrée : `importer({ files: [{ name, type, dataBase64 | text | url (data: seulement) }] })`, comme un glisser-déposer. En sortie : `exporter({ format, … })` → `{ files: [{ name, type, dataBase64 }] }`, **sans téléchargement** sauf `download: true`. Les actions destructives (`reset`) exigent `confirm: true`, après accord de l’utilisateur.
+
+```js
+// Découvrir l’app et les modèles
+await BinksyAPI.ready();
+const info = await BinksyAPI.describe();
+const { models } = await BinksyAPI.listerModeles();   // id, licence, commercialUse, poids, usage conseillé
+const etat = await BinksyAPI.getState();             // images, réglages, moteur IA prêt ou non
+```
+
+```js
+// Importer une image en base64 et agrandir
+await BinksyAPI.importer({ files: [{ name: 'logo.png', type: 'image/png', dataBase64: b64 }] });
+await BinksyAPI.choisirModele({ id: 'anime' });   // aplats, logos ; 'clear' pour une photo
+await BinksyAPI.regler({ factor: 4 });             // ou { width: 3000 }
+const { result } = await BinksyAPI.agrandir({});   // { model, factor, width, height, seconds }
+```
+
+```js
+// Exporter (rien n’est téléchargé sauf download: true)
+const { files } = await BinksyAPI.exporter({ format: 'png', dpi: 300 });   // scope: 'all' = ZIP de toutes les images agrandies
+files[0].name;   // logo_x4_anime.png  (+ width, height, dataBase64)
+```
+
+Les modèles IA ont besoin du moteur ONNX Runtime Web (téléchargé au chargement) ; `bicubic` et `nearest` marchent sans lui. `agrandir` attend la fin du calcul (plusieurs minutes possibles). Les images ne sont pas gardées après rechargement : exporte avant. Avec Playwright : `page.evaluate("BinksyAPI.describe()")`, ou `browser_evaluate` dans Playwright MCP (`npx @playwright/mcp@latest`). Les sélecteurs de l’interface (plus bas) restent valables.
+
+---
+
 ## 1. Règle fondamentale
 
 Upscaler **agrandit** les images que l’utilisateur fournit. Ce n’est pas un générateur d’images ni un outil de création de logo.
@@ -41,9 +88,9 @@ python3 -m http.server 8000
 * En Chromium headless, WebGPU est souvent absent : le calcul tourne sur le processeur, nettement plus lentement. Prévois des délais longs (plusieurs minutes pour les gros modèles).
 * Utilise un profil de navigateur dédié : les réglages sont mémorisés pour l’origine.
 
-### Pas d’API publique
+### API pour agents
 
-Upscaler **n’a pas d’API JavaScript publique**. On le pilote par l’interface, avec les identifiants stables listés au § 4. Pour lire l’état, l’app expose aussi un objet interne `window.UP` (voir § 6), non documenté comme API : lecture seule de préférence.
+Upscaler a une **API JavaScript publique**, `window.BinksyAPI`, et les mêmes outils en WebMCP (§ 0) : c’est la voie conseillée. On peut aussi le piloter par l’interface, avec les identifiants stables listés au § 4. L’objet interne `window.UP` (§ 6) n’est pas l’API : lecture seule de préférence.
 
 ---
 
@@ -145,7 +192,7 @@ Rapides pour tester ou traiter un lot : `clear`, `clearsoft`, `general`, `anime`
 
 ## 6. L’objet interne `window.UP`
 
-L’app expose, tel quel, un objet interne utile pour **lire** l’état. Ce n’est pas une API publique : pas de garantie de stabilité, et modifier ses valeurs directement ne met pas l’interface à jour ni n’enregistre les réglages.
+L’app expose, tel quel, un objet interne utile pour **lire** l’état. Ce n’est pas l’API publique (c’est `window.BinksyAPI`, § 0) : pas de garantie de stabilité, et modifier ses valeurs directement ne met pas l’interface à jour ni n’enregistre les réglages.
 
 ```js
 UP.items          // images importées : {id, name, w, h, alpha, results, res, …}
@@ -245,6 +292,21 @@ Entry points discoverable without JavaScript: `index.html` and `docs.html` decla
 
 ---
 
+## 0. Agent API: `window.BinksyAPI`, WebMCP and MCP page
+
+The app exposes a **public, versioned JavaScript API** (`apiVersion: "1"`): `window.BinksyAPI`, present in `app.html` from load. It is the most reliable way to drive the app: every method runs the same logic as the UI (screen updates, auto-save follows), is async, returns JSON and rejects with `{ code, message }`. The **same tools** are registered as **WebMCP** tools when the browser supports it (`document.modelContext.registerTool()`, or `navigator.modelContext` in older previews). Dedicated page: [`mcp/`](mcp/).
+
+Tools: `upscaler_describe` (`describe()`), `upscaler_get_state` (`getState()`), `upscaler_importer` (`importer()`), `upscaler_lister_modeles` (`listerModeles()`), `upscaler_choisir_modele` (`choisirModele()`), `upscaler_regler` (`regler()`), `upscaler_agrandir` (`agrandir()`), `upscaler_annuler_calcul` (`annulerCalcul()`), `upscaler_exporter` (`exporter()`), `upscaler_selectionner_image` (`selectionnerImage()`), `upscaler_retirer_image` (`retirerImage()`), `upscaler_reset` (`reset()`).
+
+Files in: `importer({ files: [{ name, type, dataBase64 | text | url (data: only) }] })`. Files out: `exporter({ format, … })` → `{ files: [{ name, type, dataBase64 }] }`, **no download** unless `download: true`. Destructive actions (`reset`) need `confirm: true`, after the user agrees.
+
+```js
+await BinksyAPI.ready();
+const { tools } = await BinksyAPI.describe();   // JSON schemas of every tool
+```
+
+---
+
 ## 1. Golden rule
 
 Upscaler **enlarges** images the user provides. It is not an image generator nor a logo tool.
@@ -278,9 +340,9 @@ python3 -m http.server 8000
 * Headless Chromium usually has no WebGPU: inference runs on the CPU, much more slowly. Allow long timeouts (several minutes for big models).
 * Use a dedicated browser profile: settings are remembered per origin.
 
-### No public API
+### Agent API
 
-Upscaler **has no public JavaScript API**. Drive it through the UI with the stable identifiers listed in § 4. To read state, the app also exposes an internal object `window.UP` (see § 6), not documented as an API: prefer read-only use.
+Upscaler has a **public JavaScript API**, `window.BinksyAPI`, and the same tools as WebMCP tools (§ 0): this is the recommended way. You can also drive it through the UI with the stable identifiers listed in § 4. The internal object `window.UP` (§ 6) is not the API: prefer read-only use.
 
 ---
 
@@ -382,7 +444,7 @@ Fast ones for testing or batches: `clear`, `clearsoft`, `general`, `anime`.
 
 ## 6. The internal `window.UP` object
 
-The app exposes, as is, an internal object that is handy to **read** state. It is not a public API: no stability guarantee, and changing its values directly neither updates the UI nor saves settings.
+The app exposes, as is, an internal object that is handy to **read** state. It is not the public API (that is `window.BinksyAPI`, § 0): no stability guarantee, and changing its values directly neither updates the UI nor saves settings.
 
 ```js
 UP.items          // imported images: {id, name, w, h, alpha, results, res, …}
